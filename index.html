@@ -1063,7 +1063,7 @@ window.setTab = setTab;
     <div class="sub">把主流大模型论文中的关键创新，按时间轴对应回 Transformer 流程图 · 优先覆盖 DeepSeek / ChatGPT / Claude / Gemini / Grok / Kimi / Qwen 及顶级影响力论文</div>
   </div>
   <div class="chips">
-    <button class="chip active" data-filter="all">全部<span class="cnt">31</span></button>
+    <button class="chip active" data-filter="all">全部<span class="cnt">32</span></button>
     <button class="chip" data-filter="deepseek">DeepSeek<span class="cnt">0</span></button>
     <button class="chip" data-filter="openai">OpenAI · ChatGPT<span class="cnt">0</span></button>
     <button class="chip" data-filter="anthropic">Anthropic · Claude<span class="cnt">0</span></button>
@@ -1251,7 +1251,7 @@ window.setTab = setTab;
       </div>
 
       <div class="tl-overview">
-        <div class="tl-o-title">整体技术演进总览（2017 → 2025）</div>
+        <div class="tl-o-title">整体技术演进总览（2017 → 2026）</div>
         <div class="tl-o">
           <div class="tl-o-node"><b>2017</b>自注意力基座：Transformer 提出</div>
           <div class="tl-o-node"><b>2019</b>训练稳定与高效头：Pre-Norm / RMSNorm / MQA</div>
@@ -1260,6 +1260,7 @@ window.setTab = setTab;
           <div class="tl-o-node"><b>2023</b>长上下文与偏好优化：SWA / Ring / PI·YaRN / DPO / PagedAttention</div>
           <div class="tl-o-node"><b>2024</b>稀疏化与缓存革命：MLA / DeepSeekMoE / MTP / Mooncake / 百万上下文</div>
           <div class="tl-o-node"><b>2025</b>推理与强化学习：GRPO / 长思维链 / Qwen3 MoE</div>
+          <div class="tl-o-node"><b>2026</b>残差革命与架构重构：Attention Residuals / Kimi Linear</div>
         </div>
       </div>
 
@@ -1448,7 +1449,7 @@ window.setTab = setTab;
       </div>
 
       <div class="pgroup" data-group="norm">
-        <button class="phead" type="button"><span class="pname">残差与归一化</span><span class="pcount">2 篇</span></button>
+        <button class="phead" type="button"><span class="pname">残差与归一化</span><span class="pcount">3 篇</span></button>
         <div class="pnote">Residual &amp; Normalization · 深层网络训练的稳定性来源</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>模型要堆几十层才有能力，但层数越深，梯度越容易爆炸/消失、训练越不稳定。残差连接让梯度能直接回传，归一化稳定每层输出尺度，是"深得下去"的前提。<b>创新方向：</b>前置归一化（Pre-Norm）更稳、RMSNorm 更省计算。</div>
         <div class="tl">
@@ -1467,6 +1468,14 @@ window.setTab = setTab;
             <div class="why"><b>为什么需要：</b>LayerNorm 要算均值与方差，工程开销偏大。</div>
             <div class="what"><b>创新与优势：</b>去掉均值中心化、只按均方根缩放，计算更省而训练同样稳定；LLaMA / Qwen / DeepSeek 的标配归一化。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
+          </div>
+          <div class="card" data-group="norm" data-source="moonshot">
+            <span class="tl-year">2026</span>
+            <span class="tl-dot"></span>
+            <div class="card-top"><span class="card-name">Attention Residuals 注意力残差</span><span class="tag">Kimi Team · Moonshot AI 2026-03（arXiv:2603.15031）</span></div>
+            <div class="why"><b>为什么需要：</b>PreNorm 残差连接把所有层输出按固定单位权重相加，深度增加后隐藏状态不受控增长、每层贡献被逐渐稀释（PreNorm dilution），深层网络难以有效利用更早层的信息。</div>
+            <div class="what"><b>创新与优势：</b>把固定相加换成对前序层输出的 softmax 注意力，每层按输入动态选择要聚合的历史层信息；Block AttnRes 分块跨块注意力 + cache 流水线通信把内存开销降到近零，可直接替换现有残差连接；scaling law 证明各规模一致提升，集成 Kimi Linear（48B 总参/3B 激活）预训练 1.4T tokens 后输出幅度与梯度分布更均匀、下游任务全面改善。</div>
+            <div class="card-src"><span class="fpill fp-moonshot">Moonshot · Kimi</span></div>
           </div>
         </div>
       </div>
