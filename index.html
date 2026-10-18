@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>芯片制造全流程与卡脖子图谱</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='8' y='8' width='48' height='48' rx='8' fill='%230C1B2A'/%3E%3Ccircle cx='32' cy='32' r='14' fill='none' stroke='%2338BDF8' stroke-width='3'/%3E%3Cpath d='M32 12v8M32 44v8M12 32h8M44 32h8' stroke='%2338BDF8' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap">
+<style>
+:root{
+  --bg:#F5F7FA; --card:#FFFFFF; --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8;
+  --line:#E2E8F0; --navy:#0C1B2A; --navy2:#12304D; --cy:#38BDF8; --cy-d:#0EA5E9;
+  --sev3:#E11D48; --sev2:#F97316; --sev1:#EAB308; --sev0:#22C55E; --sevx:#64748B;
+  --sev3-bg:#FFF1F2; --sev2-bg:#FFF7ED; --sev1-bg:#FEFCE8; --sev0-bg:#F0FDF4;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 4px 14px rgba(15,23,42,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Sans SC",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{width:100%;max-width:1560px;margin:0 auto;padding:0 16px}
+
+/* ===== 顶栏 ===== */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(12,27,42,.96);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.topbar-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:10px 16px;max-width:1560px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;color:#fff;font-size:15px;white-space:nowrap}
+.brand svg{flex:0 0 auto}
+.brand small{display:block;font-weight:400;color:#8FB3CC;font-size:11px;letter-spacing:.4px}
+.jump{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.jump button{border:1px solid rgba(255,255,255,.18);background:transparent;color:#C9D8E8;border-radius:999px;padding:4px 12px;font-size:12.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.jump button:hover{background:rgba(255,255,255,.12);color:#fff}
+.legend-mini{display:flex;gap:10px;align-items:center;color:#8FB3CC;font-size:11.5px;flex-wrap:wrap;margin-left:auto}
+.legend-mini i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:4px}
+
+/* ===== Hero ===== */
+.hero{background:linear-gradient(160deg,#0C1B2A 0%,#0E2540 55%,#12304D 100%);color:#fff;overflow:hidden;position:relative}
+.hero-deco{position:absolute;inset:0;background:radial-gradient(700px 300px at 80% -10%,rgba(56,189,248,.16),transparent 60%),radial-gradient(500px 260px at 10% 110%,rgba(14,165,233,.12),transparent 60%);pointer-events:none}
+.hero-in{position:relative;max-width:1560px;margin:0 auto;padding:52px 16px 40px;display:flex;gap:36px;align-items:center;flex-wrap:wrap}
+.hero-txt{flex:1 1 420px;min-width:0}
+.hero-kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:#7DD3FC;border:1px solid rgba(56,189,248,.35);border-radius:999px;padding:3px 12px;letter-spacing:.6px}
+.hero h1{font-size:clamp(26px,4.2vw,44px);font-weight:900;line-height:1.22;margin:16px 0 12px;letter-spacing:.5px}
+.hero h1 em{font-style:normal;color:var(--cy);}
+.hero p{font-size:15px;color:#B7C9DA;max-width:620px}
+.hero-stats{display:flex;gap:0;margin-top:26px;flex-wrap:wrap}
+.hstat{padding:4px 26px 4px 0;margin-right:26px;border-right:1px solid rgba(255,255,255,.14)}
+.hstat:last-child{border-right:none;margin-right:0;padding-right:0}
+.hstat b{font-size:26px;font-weight:900;color:#fff;display:block;line-height:1.2}
+.hstat b span{font-size:16px;color:#7DD3FC}
+.hstat small{font-size:12px;color:#8FB3CC}
+.hero-vis{flex:0 1 560px;min-width:0}
+.hero-vis svg{width:100%;height:auto;display:block}
+@media (max-width:900px){.hero-in{padding:40px 16px 30px}.hero-vis{flex:1 1 100%}}
+
+/* ===== 主布局 ===== */
+.section{padding:34px 0 6px}
+.sec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.sec-head h2{font-size:21px;font-weight:900;letter-spacing:.3px}
+.sec-head .en{font-size:12px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase}
+.sec-desc{color:var(--ink2);font-size:13.5px;margin-bottom:14px;max-width:820px}
+
+/* 筛选 */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:6px 0 16px}
+.filter-bar .fl{font-size:13px;color:var(--ink2);margin-right:2px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;color:var(--ink2);transition:.15s;font-family:inherit;line-height:1.4}
+.chip:hover{border-color:#B8CCDD;color:var(--ink)}
+.chip.on{border-color:var(--navy);background:var(--navy);color:#fff;font-weight:600}
+.chip .cnt{opacity:.65;font-size:11.5px;margin-left:3px}
+.chip.on .cnt{opacity:.8}
+
+/* 布局：左流程右详情 */
+.flow-layout{display:grid;grid-template-columns:minmax(0,1fr) 356px;gap:20px;align-items:start}
+@media (max-width:1023px){.flow-layout{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== 流程图 ===== */
+.flow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 10px;box-shadow:var(--shadow)}
+.stage-row{display:flex;gap:4px;align-items:stretch}
+.stage-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:6px}
+.stage-col.w-raw{flex:1 1 0}
+.stage-col.w-design{flex:1.2 1 0}
+.stage-col.w-fab{flex:1.25 1 0}
+.stage-col.w-fab2{flex:1.15 1 0}
+.stage-col.w-asm{flex:1 1 0}
+.stage-col.w-final{flex:1.05 1 0}
+.stage-col.w-app{flex:1.15 1 0}
+.stage-head{font-size:12.5px;font-weight:700;color:#fff;background:var(--navy2);border-radius:8px;padding:6px 8px;text-align:center;letter-spacing:.4px;line-height:1.4}
+.stage-head small{display:block;font-weight:400;font-size:11px;color:#9DB9CF}
+.stage-body{display:flex;flex-direction:column;gap:6px;flex:1}
+.node{position:relative;background:#fff;border:1px solid var(--line);border-left:4px solid var(--sevx);border-radius:9px;padding:7px 9px 6px 11px;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .2s;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+.node:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.node:focus-visible{outline:2px solid var(--cy-d);outline-offset:2px}
+.node.sev3{border-left-color:var(--sev3);background:var(--sev3-bg)}
+.node.sev2{border-left-color:var(--sev2);background:var(--sev2-bg)}
+.node.sev1{border-left-color:var(--sev1);background:var(--sev1-bg)}
+.node.sev0{border-left-color:var(--sev0)}
+.node.off{opacity:.18;pointer-events:none}
+.node.sel{border-color:var(--navy);box-shadow:0 0 0 2px rgba(56,189,248,.45)}
+.node-top{display:flex;flex-direction:column;align-items:flex-start;gap:3px;margin-bottom:2px}
+.lvl{font-size:10.5px;font-weight:700;border-radius:4px;padding:0 6px;line-height:16px;color:#fff;flex:0 0 auto}
+.lvl.sev3{background:var(--sev3)}.lvl.sev2{background:var(--sev2)}.lvl.sev1{background:var(--sev1);color:#3F3A00}.lvl.sev0{background:var(--sev0);color:#05330F}
+.nm{font-size:13.5px;font-weight:700;line-height:1.35}
+.node-sub{font-size:12px;color:var(--ink2);margin-top:2px;line-height:1.45}
+.node-sup{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.node .hint{position:absolute;right:7px;top:7px;color:var(--ink3);font-size:11px}
+.loop-note{grid-column:1/-1;margin-top:10px;border:1px dashed #B8CCDD;border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink2);background:#F8FAFC;text-align:center}
+
+/* 材料供给带（融入流程区顶部） */
+.mat-row{margin-bottom:10px;padding-bottom:10px;border-bottom:1px dashed var(--line)}
+.mat-head{font-size:12.5px;font-weight:700;color:var(--navy2);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+.mat-head .ln{width:22px;height:2px;background:var(--cy);border-radius:2px}
+.mat-grid{display:grid;gap:4px}
+.mat{background:#fff;border:1px solid var(--line);border-left:4px solid var(--sevx);border-radius:9px;padding:5px 8px;cursor:pointer;transition:.15s;box-shadow:0 1px 2px rgba(15,23,42,.04);min-width:0;position:relative}
+.upd-badge{position:absolute;top:-7px;right:-7px;background:#000;color:#fff;font-size:10px;font-weight:700;line-height:1;border-radius:8px;padding:3px 7px;z-index:5;border:1px solid #EF4444;box-shadow:0 1px 5px rgba(0,0,0,.45);white-space:nowrap;letter-spacing:.2px}
+.co-new{display:inline-block;background:#000;color:#fff;font-size:9px;font-weight:700;line-height:1;border-radius:6px;padding:2px 5px;margin-left:6px;vertical-align:1px;border:1px solid #EF4444;letter-spacing:.2px}
+.node.has-upd,.mat.has-upd{}
+.mat:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.mat.sev3{border-left-color:var(--sev3);background:var(--sev3-bg)}
+.mat.sev2{border-left-color:var(--sev2);background:var(--sev2-bg)}
+.mat.sev1{border-left-color:var(--sev1);background:var(--sev1-bg)}
+.mat.off{opacity:.18;pointer-events:none}
+.mat.sel{border-color:var(--navy);box-shadow:0 0 0 2px rgba(56,189,248,.45)}
+.mat-top{display:flex;flex-direction:column;align-items:flex-start;gap:3px}
+.mat .nm{font-size:12px}
+.mat .node-sub{font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mat .node-sup{font-size:10.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mat-link{display:flex;align-items:center;justify-content:center;color:#B8CCDD;font-size:11px;letter-spacing:2px;border-bottom:1px dashed #B8CCDD;margin:3px 2px;min-width:0;overflow:hidden;user-select:none}
+
+/* 技术路线对比区（流程列下方） */
+.route-panel{margin-top:12px;border:1px dashed #B8CCDD;border-radius:10px;padding:12px 14px;background:#F8FAFC}
+.route-head{font-size:13px;font-weight:700;color:var(--navy2);display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.route-head .ln{width:22px;height:2px;background:var(--cy);border-radius:2px}
+.route-head .rt-tag{font-size:11px;font-weight:600;border-radius:999px;padding:1px 9px;color:#fff;background:var(--cy-d)}
+.route-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:860px){.route-grid{grid-template-columns:1fr}}
+.rt{border-radius:8px;padding:8px 10px;background:#fff;border:1px solid var(--line);min-width:0}
+.rt h5{font-size:12px;font-weight:700;margin-bottom:4px}
+.rt p{font-size:12px;color:var(--ink2);line-height:1.55;margin:0}
+.rt-intl h5{color:#2563EB}.rt-dom h5{color:#059669}
+.rt-same h5{color:#7C3AED}.rt-diff h5{color:#D97706}
+.rt-pros h5{color:#0F766E}.rt-cons h5{color:#DC2626}
+.rt-stage{grid-column:1/-1;background:#F8FAFC;border-color:#E2E8F0}
+.rt-stage h5{color:#0F172A}
+.rt-stage p{color:#334155}
+.tl{position:relative;margin-top:6px}
+.tl-itm{display:grid;grid-template-columns:66px 16px 1fr;gap:7px;padding:0 0 13px 0}
+.tl-itm:last-child{padding-bottom:0}
+.tl-time{font-size:11px;font-weight:700;color:var(--ink3);text-align:right;padding-top:1px;line-height:1.35}
+.tl-rail{position:relative;display:flex;justify-content:center}
+.tl-dot{width:9px;height:9px;border-radius:50%;background:#94A3B8;margin-top:3px;z-index:1;box-shadow:0 0 0 3px #F8FAFC}
+.tl-itm.intl .tl-dot{background:#2563EB}
+.tl-itm.dom .tl-dot{background:#059669}
+.tl-rail::before{content:"";position:absolute;top:0;bottom:-13px;width:2px;background:#E2E8F0}
+.tl-itm:last-child .tl-rail::before{display:none}
+.tl-body{min-width:0}
+.tl-e{font-size:12.5px;font-weight:700;color:var(--ink);line-height:1.4}
+.tl-d{font-size:12px;color:var(--ink2);line-height:1.5;margin-top:1px}
+.tl-i{font-size:11.5px;color:#0F766E;margin-top:2px;line-height:1.45}
+.tl-s{font-size:11px;color:var(--ink3);margin-top:2px}
+.tl-s a{color:#2563EB;text-decoration:none;border-bottom:1px dotted #93C5FD;word-break:break-all}
+.tl-tag{display:inline-block;font-size:10.5px;font-weight:600;border-radius:4px;padding:0 5px;margin-right:5px;line-height:15px;vertical-align:1px}
+.upd-note{margin:-6px 0 12px;background:#FFF5F5;border:1px solid #FECACA;border-left:4px solid #EF4444;color:#7F1D1D;font-size:12px;border-radius:8px;padding:7px 10px;line-height:1.55}
+.upd-note b{color:#B91C1C}
+.sup-new{border:1px solid #FCA5A5;background:#FFF5F5}
+.sup-new-tag{display:inline-block;background:#000;color:#fff;font-size:8.5px;font-weight:700;font-style:normal;border:1px solid #EF4444;border-radius:4px;padding:0 4px;margin-left:5px;vertical-align:1px;letter-spacing:.2px}
+.tl-itm.tl-new{background:#FFF7F7;border-radius:8px;padding:4px 6px 9px}
+.tl-new-tag{display:inline-block;background:#000;color:#fff;font-size:9px;font-weight:700;border:1px solid #EF4444;border-radius:5px;padding:1px 5px;margin-right:6px;vertical-align:1.5px;letter-spacing:.2px}
+.tl-tag.intl{background:#DBEAFE;color:#1D4ED8}
+.tl-tag.dom{background:#D1FAE5;color:#047857}
+.rt-routecmp{grid-column:1/-1;background:#FAF5FF;border-color:#E9D5FF}
+.rt-routecmp h5{color:#6D28D9}
+.rr{border:1px solid #E9D5FF;border-radius:8px;padding:8px 10px;margin-top:8px;background:#fff}
+.rr-name{font-size:12.5px;font-weight:800;color:#6D28D9;margin-bottom:6px;padding-bottom:5px;border-bottom:1px dashed #E9D5FF}
+.rr-row{font-size:12px;line-height:1.55;color:var(--ink2);margin:4px 0}
+.rr-tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:4px;padding:0 6px;margin-right:6px;line-height:16px;vertical-align:1px}
+.rr-intl .rr-tag{background:#DBEAFE;color:#1D4ED8}
+.rr-dom .rr-tag{background:#D1FAE5;color:#047857}
+.rr-same{font-size:12px;color:#6D28D9;background:#F5F3FF;border-radius:6px;padding:5px 8px;margin-top:5px}
+.rr-diff{font-size:12px;color:#B45309;background:#FFFBEB;border-radius:6px;padding:5px 8px;margin-top:5px}
+.rr-pros{font-size:12px;color:#0F766E;background:#F0FDFA;border-radius:6px;padding:5px 8px;margin-top:5px}
+.rr-cons{font-size:12px;color:#B91C1C;background:#FEF2F2;border-radius:6px;padding:5px 8px;margin-top:5px}
+.rr-ic{color:#B45309;background:#FFFBEB}
+.rr-dp{color:#047857;background:#ECFDF5}
+.rt-mkt{grid-column:1/-1;background:#EFF6FF;border-color:#BFDBFE}
+.rt-mkt h5{color:#1D4ED8}
+.rt-mkt p{color:#1E3A8A}
+
+/* 移动端阶段列纵向 */
+@media (max-width:860px){
+  .stage-row{flex-direction:column}
+  .stage-col{flex:1 1 auto}
+  .mat-grid{grid-template-columns:1fr 1fr !important}
+  .mat-grid .mat{grid-row:auto !important;grid-column:auto !important}
+  .mat-link{display:none}
+}
+
+/* ===== 详情面板 ===== */
+.panel{position:sticky;top:64px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-height:280px;max-height:calc(100vh - 84px);overflow:auto;overscroll-behavior:contain}
+.panel-empty{color:var(--ink3);font-size:13px;text-align:center;padding:40px 10px}
+.panel-empty b{display:block;font-size:15px;color:var(--ink2);margin-bottom:6px}
+.panel-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.panel-head .lvl{font-size:11.5px;line-height:20px;padding:0 9px;border-radius:5px}
+.panel-head h3{font-size:18px;font-weight:900;line-height:1.35}
+.panel-stage{font-size:12px;color:var(--ink3);margin-bottom:12px}
+.pblock{margin-bottom:12px}
+.pblock h4{font-size:12px;color:var(--ink3);font-weight:600;letter-spacing:.5px;margin-bottom:5px}
+.pblock p{font-size:13.5px;color:var(--ink2);line-height:1.65}
+.sup-list{display:flex;flex-wrap:wrap;gap:6px}
+.sup-chip{background:#F1F5F9;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--ink);padding:3px 10px}
+.prog{background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;padding:8px 10px;font-size:12.5px;color:#075985}
+.why{background:#F8FAFC;border-left:3px solid #64748B;border-radius:4px;padding:7px 9px;font-size:12.5px;color:#334155;margin-top:8px;line-height:1.6}
+.terms{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.term{background:#F1F5F9;border-radius:6px;padding:6px 9px;font-size:12px;line-height:1.55}
+.term b{display:inline-block;color:#0F172A;font-weight:700;margin-right:6px}
+.term b::after{content:"：";color:#94A3B8}
+.term span{color:#475569}
+.prog b{display:block;font-size:12px;color:#0C4A6E;margin-bottom:2px}
+.panel-tabs{display:flex;gap:6px;margin-bottom:12px;background:#F1F5F9;border:1px solid var(--line);border-radius:9px;padding:4px;position:sticky;top:0;z-index:3}
+.ptab{flex:1;border:0;background:transparent;border-radius:7px;padding:9px 0;font-size:12.5px;font-weight:600;color:var(--ink3);cursor:pointer;font-family:inherit}
+.ptab.on{background:#0F172A;color:#fff}.panel-close{display:none}
+@media (max-width:1023px){
+  .panel{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:60;border-radius:16px 16px 0 0;max-height:70vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease;box-shadow:0 -8px 30px rgba(15,23,42,.2)}
+  .panel.open{transform:translateY(0)}
+  .panel-close{display:block;margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:999px;width:30px;height:30px;font-size:14px;color:var(--ink2);cursor:pointer;flex:0 0 auto;font-family:inherit}
+  .mask{position:fixed;inset:0;background:rgba(12,27,42,.4);z-index:55;opacity:0;pointer-events:none;transition:opacity .2s}
+  .mask.on{opacity:1;pointer-events:auto}
+}
+/* 对比区：国际供应商 vs 国产替代 */
+.cmp-b{margin-top:2px}
+.cmp-b h4{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.cmp-note{font-weight:400;font-size:11px;color:var(--ink3)}
+.cmp-g{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+.cmp-c{display:flex;flex-direction:column;gap:7px;min-width:0}
+.cmp-h{font-size:12px;font-weight:700;border-radius:6px;padding:4px 10px;letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.cmp-h small{font-weight:400;font-size:10.5px;opacity:.75}
+.cmp-h.intl{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE}
+.cmp-h.dom{background:#F0FDF4;color:#15803D;border:1px solid #BBF7D0}
+.co{background:#F8FAFC;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:12px;line-height:1.5}
+.co-t{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.co-n{font-weight:700;font-size:12.5px;color:var(--ink)}
+.co-m{font-size:10.5px;color:var(--ink3);background:#E2E8F0;border-radius:4px;padding:0 5px}
+.co-q{display:flex;align-items:baseline;gap:7px;margin-bottom:2px;flex-wrap:wrap}
+.co-p{font-weight:700;font-size:13px;color:var(--ink)}
+.co-c{font-size:11.5px;font-weight:700}
+.co-up{color:#16A34A}.co-dn{color:#DC2626}.co-na{color:var(--ink3)}
+.co-trend{display:flex;gap:7px;align-items:center;font-size:11px;color:var(--ink2);margin-bottom:4px;flex-wrap:wrap}
+.co-x{color:var(--ink3);font-size:10.5px;background:#EEF2F7;border-radius:4px;padding:0 5px}
+.co-tech{font-size:11.5px;color:var(--ink2);background:#F1F5F9;border-radius:6px;padding:4px 7px;margin-bottom:4px;line-height:1.5}
+.co-tech b{color:var(--navy2);font-weight:700;margin-right:4px}
+.co-d{font-size:11px;color:var(--ink3);line-height:1.5}
+.co-none{border:1px dashed var(--line);border-radius:8px;padding:8px 10px;font-size:11.5px;color:var(--ink3);background:#FAFCFE}
+.panel-tip{font-size:12px;color:var(--ink3);margin-top:14px;border-top:1px dashed var(--line);padding-top:10px;line-height:1.6}
+
+/* ===== 图例/口径 ===== */
+.legend-block{display:flex;gap:14px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:18px 0 4px;font-size:12.5px;color:var(--ink2)}
+.legend-block span{display:inline-flex;align-items:center;gap:6px}
+.legend-block i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.foot{padding:26px 16px 40px;color:var(--ink3);font-size:12px;max-width:1560px;margin:0 auto;line-height:1.8}
+.foot b{color:var(--ink2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="8" width="48" height="48" rx="8" fill="none" stroke="#38BDF8" stroke-width="3"/><circle cx="32" cy="32" r="13" fill="none" stroke="#7DD3FC" stroke-width="3"/><path d="M32 11v7M32 46v7M11 32h7M46 32h7" stroke="#7DD3FC" stroke-width="3" stroke-linecap="round"/></svg>
+      <div>芯片制造全流程<small>原材料 → 成品 · 依赖标注 · 交互式浏览</small></div>
+    </div>
+    <div class="legend-mini">
+      <span><i style="background:#E11D48"></i>极高</span>
+      <span><i style="background:#F97316"></i>高</span>
+      <span><i style="background:#EAB308"></i>中高</span>
+      <span><i style="background:#22C55E"></i>基本自主</span>
+    </div>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="hero-deco" aria-hidden="true"></div>
+  <div class="hero-in">
+    <div class="hero-txt">
+      <span class="hero-kicker">SEMICONDUCTOR SUPPLY CHAIN · 从硅砂到芯片</span>
+      <h1>一粒砂的旅程，<br>卡在谁的手里</h1>
+      <div class="hero-stats" id="heroStats"></div>
+    </div>
+    <div class="hero-vis" aria-hidden="true">
+      <svg viewBox="0 0 560 240">
+        <defs>
+          <linearGradient id="pLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#0EA5E9"/>
+          </linearGradient>
+        </defs>
+        <path id="track" d="M20,150 C120,60 240,60 300,150 C360,240 480,240 540,150" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2"/>
+        <path d="M20,150 C120,60 240,60 300,150 C360,240 480,240 540,150" fill="none" stroke="url(#pLine)" stroke-width="3" stroke-dasharray="3 9" stroke-linecap="round"/>
+        <circle r="5" fill="#7DD3FC"><animateMotion dur="7s" repeatCount="indefinite" path="M20,150 C120,60 240,60 300,150 C360,240 480,240 540,150"/></circle>
+        <circle r="4" fill="#38BDF8"><animateMotion dur="7s" begin="-2.3s" repeatCount="indefinite" path="M20,150 C120,60 240,60 300,150 C360,240 480,240 540,150"/></circle>
+        <circle r="3.5" fill="#E0F2FE"><animateMotion dur="7s" begin="-4.6s" repeatCount="indefinite" path="M20,150 C120,60 240,60 300,150 C360,240 480,240 540,150"/></circle>
+        <g id="gates">
+          <g><circle cx="120" cy="88" r="7" fill="#E11D48"/><circle cx="120" cy="88" r="12" fill="none" stroke="#E11D48" stroke-width="1.5" opacity=".6"><animate attributeName="r" values="7;14;7" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2.6s" repeatCount="indefinite"/></circle><text x="120" y="66" text-anchor="middle" fill="#FECDD3" font-size="11">EDA</text></g>
+          <g><circle cx="300" cy="150" r="7" fill="#E11D48"/><circle cx="300" cy="150" r="12" fill="none" stroke="#E11D48" stroke-width="1.5" opacity=".6"><animate attributeName="r" values="7;14;7" dur="2.6s" begin=".6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2.6s" begin=".6s" repeatCount="indefinite"/></circle><text x="300" y="186" text-anchor="middle" fill="#FECDD3" font-size="11">光刻</text></g>
+          <g><circle cx="480" cy="212" r="7" fill="#F97316"/><circle cx="480" cy="212" r="12" fill="none" stroke="#F97316" stroke-width="1.5" opacity=".6"><animate attributeName="r" values="7;14;7" dur="2.6s" begin="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0;.7" dur="2.6s" begin="1.3s" repeatCount="indefinite"/></circle><text x="480" y="236" text-anchor="middle" fill="#FED7AA" font-size="11">封测</text></g>
+        </g>
+        <text x="20" y="36" fill="#8FB3CC" font-size="12">原 材 料</text>
+        <text x="540" y="36" text-anchor="end" fill="#8FB3CC" font-size="12">成 品</text>
+        <g font-size="11" fill="#8FB3CC">
+          <text x="120" y="120" text-anchor="middle">设计工具</text>
+          <text x="300" y="166" text-anchor="middle">制造设备</text>
+          <text x="480" y="196" text-anchor="middle">先进封测</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="section" id="sec-flow">
+        
+    <div class="filter-bar" id="filterBar"></div>
+
+    <div class="flow-layout">
+      <div class="flow">
+        <div class="mat-row">
+          <div class="mat-head"><span class="ln"></span>关键材料供给线 · 材料条横跨到的列 = 使用该材料的环节（点击查看）</div>
+          <div class="mat-grid" id="matGrid"></div>
+        </div>
+        <div class="stage-row" id="stageRow"></div>
+      </div>
+      <aside class="panel" id="panel" role="dialog" aria-live="polite">
+        <div class="panel-empty" id="panelEmpty">
+          <b>点击一个环节开始</b>
+          上方流程图中任一节点、材料供给线卡片均可点击，这里会展示该环节的卡脖子技术，以及国际供应商与国产替代的公司档案（简介 · 股价与趋势 · 技术路线）对比。
+        </div>
+        <div class="panel-tabs" id="panelTabs" style="display:none">
+          <button type="button" class="ptab on" data-tab="detail" onclick="setTab('detail')">环节详情</button>
+          <button type="button" class="ptab" data-tab="route" onclick="setTab('route')">国际供应商 · 行情</button>
+        </div>
+        <div id="panelBody" style="display:none"></div>
+        <div class="route-panel" id="routePanel" hidden></div>
+      </aside>
+    </div>
+
+    <div class="legend-block">
+      <span><i style="background:#E11D48"></i>极高风险：独家/寡头垄断 + 出口管制，国产几乎空白</span>
+      <span><i style="background:#F97316"></i>高风险：寡头垄断，国产化率低或代差明显</span>
+      <span><i style="background:#EAB308"></i>中高风险：有国产替代但先进节点仍依赖进口</span>
+      <span><i style="background:#22C55E"></i>基本自主：国产供应链主导或已具全球竞争力</span>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <b>数据口径与来源</b>：供应商格局来自公开市场份额调查与行业报告（如日经新闻主要商品份额调查、日本经产省半导体材料白皮书、行业研报）；国产化率（刻蚀≈31%、薄膜沉积≈27%、清洗≈29%、CMP≈39%、量检测≈10%、涂胶显影≈6%等）为券商研报估算值（2025–2026），仅供趋势参考；"卡脖子等级"为基于供给集中度与替代难度的综合判断。<b>技术路线对比区</b>：技术原理与路线描述为公开技术资料整理；"市场调研与分析"中的市场规模、份额与国产化率来自公开行业统计与研报（Yole、Counterpoint、IDC、Gartner、日经、东吴证券、中国电子材料行业协会等，2025–2026），口径随数据来源略有差异，供趋势参考。<b>行情数据</b>：详情卡中股价/涨跌/PE/市值为 2026-10-16 收盘快照（美股/日股/韩股/港股/A股，来源 Wind/同花顺公开行情）；未收录当地行情或未上市的公司仅标注上市地/状态，不展示数值。"年内"为 2026 年初至今涨跌幅；拆股/除权标的（如东京电子 9 月底拆股）的年内趋势不具可比性，以"—"标注。本页为产业链科普图谱，不构成投资建议。时间轴事件更新至 2026-10-18（新增：欧盟制裁互换涉 ASML 供应商、SK海力士大连扩产与设备许可谈判、微导纳米 PVD 设备、迈特芯 3D-TPU）。
+</footer>
+
+<div class="mask" id="mask"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===== 数据 ===== */
+var SEV = [
+  {k:3, name:"极高", color:"#E11D48", bg:"#FFF1F2"},
+  {k:2, name:"高",   color:"#F97316", bg:"#FFF7ED"},
+  {k:1, name:"中高", color:"#EAB308", bg:"#FEFCE8"},
+  {k:0, name:"基本自主", color:"#22C55E", bg:"#F0FDF4"}
+];
+var STAGES = [
+  {id:"raw",  name:"原材料与硅片", en:"Materials"},
+  {id:"design",name:"芯片设计", en:"Design"},
+  {id:"fab",  name:"晶圆制造·图形化", en:"Front-end · Patterning"},
+  {id:"fab2", name:"晶圆制造·掺杂平坦化", en:"Front-end · Doping & CMP"},
+  {id:"asm",  name:"封装测试（后道）", en:"Assembly & Test"},
+  {id:"final",name:"成品", en:"Final Product"},
+  {id:"app",  name:"成品下游", en:"End Applications"}
+];
+var NODES = [
+  {id:"n1", stage:"raw", sev:1, name:"高纯石英砂", sub:"电子级石英砂提纯（坩埚/石英部件原料）", sup:"Sibelco（尤尼明）· TQC（挪威）", role:"芯片制造的起点：把天然石英矿提纯到 4N8 以上高纯度，用于拉晶坩埚与石英器件。", tech:"高纯石英砂提纯（粒度、杂质、羟基控制）", suppliers:["Sibelco 尤尼明（美国）","The Quartz Corp（挪威）"], prog:"国内石英股份等已实现部分中高端替代，半导体级高端料仍以进口为主。", note:"全球高纯石英砂高度集中，属隐性卡脖子点。",why:"石英砂是硅的起始来源：先还原成工业硅/多晶硅，才能拉制单晶硅锭；而拉晶坩埚必须用高纯石英砂制作，其碱金属杂质会直接扩散进硅熔体，决定整片晶圆的金属本底，是先进制程良率的源头。",terms:[{t:"高纯石英砂",d:"SiO₂ 纯度 99.99% 以上的石英砂；坩埚料要求碱金属（Li/Na/K）低至几十 ppm"},{t:"Spruce Pine 矿区",d:"美国北卡罗来纳州的高品位石英矿，全球半导体级石英的主源地，开采提纯高度集中"},{t:"石英坩埚",d:"拉制单晶硅的容器，在 1500℃ 高温下盛装硅熔体，其纯度直接决定硅锭杂质"}]},
+  {id:"n2", stage:"raw", sev:0, name:"多晶硅提纯", sub:"西门子法/流化床法还原", sup:"通威 · 大全 · 协鑫（国内主导）", role:"将石英砂还原、提纯为 9N–11N 电子级多晶硅。", tech:"电子级多晶硅（半导体级）", suppliers:["通威股份（国内）","大全能源（国内）","协鑫科技（国内）"], prog:"国内产能全球主导，基本自主可控。", note:"半导体级高纯料部分仍进口，但整体风险可控。",why:"单晶硅必须以高纯多晶硅为原料（纯度 9-11N，比光伏级高几个量级）。工业硅先提纯成电子级多晶硅，才能进入拉晶，是「硅片纯度」的第一道关卡。",terms:[{t:"改良西门子法",d:"三氯氢硅（SiHCl₃）与氢气在 1100℃ 硅芯上化学气相沉积（CVD）还原出棒状多晶硅，主流路线"},{t:"流化床法（FBR）",d:"硅烷在流化床内热分解连续产出颗粒硅，电耗更低，但杂质控制难度高"},{t:"电子级多晶硅",d:"半导体用多晶硅，杂质需 ppb 级，比光伏级（约 6N）要求严格得多"}]},
+  {id:"n3", stage:"raw", sev:0, name:"单晶硅拉制", sub:"Cz 直拉法生长单晶硅锭", sup:"隆基 · 中环 · 晶盛机电（设备国产）", role:"把多晶硅熔融后拉出单晶硅锭，是晶圆的母体。", tech:"拉晶炉与单晶生长工艺", suppliers:["隆基绿能（国内）","TCL中环（国内）","晶盛机电（设备，国内）"], prog:"拉晶设备与工艺国产化率高，晶盛机电已是全球主要设备商。", note:"此环节中国具备全球竞争力。",why:"芯片必须做在无晶界的完美单晶硅上。多晶硅料经 CZ 直拉法熔融后再结晶为单晶硅锭，消除晶界并控制杂质分布，是硅片质量的第二道关卡。",terms:[{t:"CZ 直拉法",d:"Czochralski 法：籽晶接触硅熔体后缓慢旋转提拉，长出单晶硅锭"},{t:"单晶硅锭",d:"无晶界的硅晶体，直径 300mm、长数米，切片后才是做芯片的硅片"},{t:"晶界",d:"晶体间的界面，会破坏器件电学性能并导致漏电，必须消除"}]},
+  {id:"n4", stage:"raw", sev:2, name:"300mm 大硅片", sub:"切片 → 研磨 → 抛光成晶圆", sup:"信越 · SUMCO · 环球晶圆 · Siltronic", role:"把硅锭切成 12 英寸晶圆并抛光到纳米级平整度，是产线的“地基”。", tech:"300mm 大硅片（切割、双面研磨、CMP 抛光、外延）", suppliers:["信越化学（日本）","SUMCO（日本）","环球晶圆（中国台湾）","Siltronic（德国）"], prog:"沪硅产业、中环领先等产能爬坡中，全球市占率仍低。", note:"日系两家合计约占全球一半，先进制程硅片被寡头把持。",why:"集成电路在圆形硅片表面逐层制造。硅锭要先切片、研磨、抛光成表面原子级平整的 300mm 晶圆，平整度不达标则光刻无法对焦、良率崩溃。",terms:[{t:"300mm 晶圆",d:"直径 300mm（12 英寸）的硅片，当前先进制程的主流规格"},{t:"硅片抛光",d:"用化学机械抛光把硅片表面磨到纳米级平整（LTV/纳米形貌控制）"},{t:"外延片",d:"在硅片表面再生长一层更高纯度的硅单晶层，改善器件电学特性（部分规格需要）"}]},
+  {id:"n5", stage:"design", sev:3, name:"EDA 设计工具", sub:"芯片设计的“画笔”，全流程工具链", sup:"Synopsys · Cadence · Siemens EDA", role:"先进制程芯片必须用 EDA 完成电路设计、仿真、验证与版图。", tech:"先进节点全流程 EDA（数字/模拟/验证/物理实现）", suppliers:["Synopsys 新思科技（美国）","Cadence 楷登电子（美国）","Siemens EDA 西门子（美国/德国）"], prog:"华大九天、概伦电子、芯华章等覆盖成熟工艺，先进节点仍有代差。", note:"先进制程 EDA 被美国三巨头垄断并受出口管制；成熟工艺已有国产替代。",why:"芯片设计无法手工作业：从电路描述到门级网表、版图、验证全靠 EDA 软件。没有 EDA，7nm 级数亿晶体管芯片根本无法设计，它是「芯片设计的操作系统」。",terms:[{t:"EDA",d:"Electronic Design Automation 电子设计自动化，用软件完成设计、仿真、验证、签核"},{t:"逻辑综合",d:"把 Verilog 硬件描述语言转成门级电路网表，是数字前端核心步骤"},{t:"版图",d:"芯片的物理版图（Layout），决定光刻掩膜上的最终图形"},{t:"PDK",d:"晶圆厂提供的工艺设计套件，定义制程设计规则与器件模型，EDA 与工艺的接口"}]},
+  {id:"n6", stage:"design", sev:2, name:"高端设计 IP", sub:"CPU 内核 / SerDes / 存储控制器", sup:"Arm · Synopsys · Cadence", role:"设计芯片时直接调用的成熟功能模块，相当于“乐高积木”。", tech:"高性能 CPU 核、高速接口（PCIe/SerDes/DDR/HBM 控制器）", suppliers:["Arm（英国，日本软银控股）","Synopsys（美国）","Cadence（美国）"], prog:"RISC-V 开源架构提供备选，但高性能 CPU 核授权仍主要依赖 Arm。", note:"华为等获 Arm 授权受限后转向自研架构。",why:"芯片大多由现成 IP 模块「搭积木」而成。CPU/GPU/接口等核心 IP 决定芯片性能上限，也是架构授权的卡点——拿不到授权，芯片性能天花板就受限。",terms:[{t:"IP 核",d:"Intellectual Property：预设计的电路模块（CPU、GPU、接口、存储控制器），授权后嵌入 SoC"},{t:"指令集架构（ISA）",d:"CPU 的指令体系，如 ARM、RISC-V、x86，决定软件生态与处理器设计基础"},{t:"SoC",d:"System-on-Chip 系统级芯片，把 CPU/GPU/NPU/基带等集成到一颗芯片"}]},
+  {id:"n7", stage:"design", sev:2, name:"掩膜版（光罩）", sub:"把设计图形制成光刻“底片”", sup:"DNP · Toppan · Photronics · HOYA", role:"将芯片版图转移到石英光罩上，光刻机以它为“蓝图”曝光。", tech:"先进节点掩膜版制造与护膜（pellicle）", suppliers:["DNP 大日本印刷（日本）","Toppan 凸版（日本）","Photronics（美国）","HOYA（日本）"], prog:"国内掩膜厂以成熟节点为主，先进节点光罩几乎依赖日美。", note:"掩膜与护膜是容易被忽视的卡点。",why:"光刻是把掩膜上的电路图形转印到晶圆，掩膜就是「底片」。其图形精度与缺陷直接决定转印极限，先进制程掩膜制造高度集中在日企。",terms:[{t:"掩膜版（光罩）",d:"刻有电路图形的石英玻璃板，光刻时把图形投影到晶圆"},{t:"OPC",d:"光学邻近效应修正，通过预变形图形补偿光衍射，保证转印图形正确"},{t:"EUV 光罩",d:"极紫外光刻用掩膜，需低热膨胀基板+多层膜反射结构，制造难度极高"}]},
+  {id:"n8", stage:"fab", sev:3, name:"涂胶显影 Track", sub:"光刻配套：涂胶 → 曝光后显影", sup:"TEL 东京电子（全球约91%）", role:"光刻前把光刻胶均匀涂布、曝光后显影，与光刻机组成系统。", tech:"涂胶显影设备（Coater/Developer）", suppliers:["东京电子 TEL（日本，全球份额约91%）"], prog:"芯源微等国产厂商刚起步，份额极低。", note:"TEL 近乎独占，先进制程绕不开。",why:"光刻前必须把光刻胶均匀涂覆在晶圆上（涂胶），曝光后再显影出图形。Track 就是这套涂胶-烘烤-显影的配套设备，与光刻机联机工作。",terms:[{t:"光刻胶",d:"对光敏感的高分子材料，曝光区发生化学变化，成为后续刻蚀/注入的掩蔽层"},{t:"Track（涂胶显影机）",d:"与光刻机联动的设备，完成涂胶、烘烤（软烘/硬烘）、显影"},{t:"显影",d:"用显影液溶解曝光区（正胶）或未曝光区（负胶），洗出图形"}]},
+  {id:"n9", stage:"fab", sev:3, name:"光刻曝光", sub:"EUV / DUV 光刻机", sup:"ASML（EUV 唯一）· Nikon · Canon", role:"用光把电路图形逐层转印到晶圆上，是先进制程最核心的关卡。", tech:"EUV 极紫外光刻机（7nm 以下必需）、ArF 浸没式 DUV", suppliers:["ASML 阿斯麦（荷兰，EUV 全球唯一）","Nikon 尼康（日本，DUV）","Canon 佳能（日本，DUV）"], prog:"上海微电子最先进制程与先进节点差距大，EUV 光刻机对华禁售；朗道燧岩 LPP-EUV 光源样机（国产化率 90%）填补空白，距量产 3-5 年；纳米压印（苏大维格/天仁微纳）等非光刻路线在研。", note:"7nm 以下制程绕不开 ASML 的 EUV；光源+光学系统+精密工件台为 EUV 光刻三大核心，朗道燧岩走与 ASML 一致的 LPP 锡等离子体路线；佳能押注纳米压印，国产 NIL 亦在探索。",why:"光刻是先进制程最核心的关卡：把每层电路图形逐层转印到晶圆，7nm 以下必须用 EUV。光刻机是「卡脖子之王」，EUV 全球仅 ASML 一家能造。",terms:[{t:"EUV 极紫外光刻",d:"波长 13.5nm 的光刻技术，用锡等离子体光源+多层膜反射镜，7nm 以下制程必需"},{t:"浸没式 DUV",d:"ArF 193nm 激光在水浸透镜下曝光，等效缩短波长，用于 28-40nm 制程"},{t:"套刻精度（Overlay）",d:"各层图形的对准误差，先进节点需控制在 nm 级，决定能否堆叠出精密器件"}],upd:"2026-10 · EUV 样机首秀 + 欧盟制裁互换"},
+  {id:"n10", stage:"fab", sev:2, name:"刻蚀", sub:"去除材料，雕出电路结构", sup:"Lam · TEL · AMAT", role:"用等离子体精确“雕刻”掉不需要的材料，与光刻配合形成图形。", tech:"介质/导体刻蚀（CCP、ICP 等）", suppliers:["Lam Research 泛林（美国）","东京电子 TEL（日本）","应用材料 AMAT（美国）"], prog:"中微公司、北方华创已进入全球前列，国产化率约31%。", note:"介质刻蚀中微已通过先进节点验证。",why:"光刻只画出图形，真正的电路结构要靠刻蚀把材料有选择地去除——做出晶体管、电容和互连沟槽，是图形转移的关键一环。",terms:[{t:"等离子体刻蚀",d:"等离子体中的离子轰击+自由基化学反应协同去除材料，实现各向异性刻蚀"},{t:"CCP",d:"电容耦合等离子体，适合介质层（低k 材料）刻蚀，先进节点主导"},{t:"ICP",d:"电感耦合等离子体，密度高、方向性好，用于硅/金属刻蚀"},{t:"高深宽比刻蚀",d:"刻出深而窄的孔/槽（如 3D NAND、TSV），是 3D 结构的关键工艺"}]},
+  {id:"n11", stage:"fab", sev:2, name:"薄膜沉积", sub:"CVD / PVD / ALD 生长薄膜", sup:"AMAT · Lam · TEL · ASM", role:"在晶圆表面生长绝缘、导电、阻挡等薄膜层。", tech:"CVD/PVD/ALD 薄膜沉积设备", suppliers:["应用材料 AMAT（美国）","Lam Research（美国）","东京电子 TEL（日本）","ASM International（荷兰）"], prog:"北方华创、拓荆科技等突破中，国产化率约27%。", note:"ALD 高端设备差距仍明显。",why:"集成电路是逐层薄膜堆叠的「3D 建筑」：绝缘层、导电层、栅介质都靠沉积生长。沉积设备决定膜厚均匀性、致密度与前驱体利用率。",terms:[{t:"CVD",d:"化学气相沉积：气体前驱体在晶圆表面反应成膜，覆盖范围广"},{t:"PVD",d:"物理气相沉积（溅射），用于金属膜（铝/铜阻挡层等）"},{t:"ALD",d:"原子层沉积：前驱体分步反应逐原子层生长，用于高k 栅介质等关键膜层"},{t:"前驱体",d:"沉积反应的气体化学原料，其纯度与配方决定膜层质量"}],upd:"2026-10 · 微导纳米 PVD 设备发布"},
+  {id:"n12", stage:"fab2", sev:2, name:"离子注入", sub:"掺杂改变导电性", sup:"AMAT · Axcelis", role:"把硼、磷等掺杂离子高速打入硅片，精确控制晶体管导电性。", tech:"大束流/高能离子注入机", suppliers:["应用材料 AMAT（美国）","Axcelis 亚舍立（美国）"], prog:"万业企业（凯世通）等推进国产化，份额仍低。", note:"高端注入机依赖美国厂商。",why:"要让硅片局部区域变成 N 型或 P 型半导体（构成晶体管），必须精确掺入磷/硼等杂质。离子注入可精确控制剂量与深度，是制造器件的雕琢手段。",terms:[{t:"掺杂",d:"向硅中引入杂质改变导电类型：磷/砷→N 型，硼→P 型"},{t:"离子注入",d:"把杂质离子加速轰入硅片指定深度，可精确控制剂量与分布"},{t:"退火",d:"注入后的高温处理，修复晶格损伤并激活杂质原子"}]},
+  {id:"n13", stage:"fab2", sev:1, name:"清洗", sub:"去除颗粒与金属污染", sup:"SCREEN · Lam", role:"每道工序前后清除颗粒、金属离子污染，良率的隐形守护者。", tech:"单片/槽式湿法清洗设备", suppliers:["SCREEN 迪恩士（日本）","Lam Research（美国）"], prog:"盛美上海、至纯科技等放量，国产化率约29%。", note:"国产化进展相对最快的环节之一。",why:"制造中任何颗粒或金属污染都会造成器件缺陷，每道工序前后都要清洗。洁净度是良率的生命线，先进节点对颗粒尺寸要求已到 10nm 级。",terms:[{t:"兆声波清洗",d:"高频声波产生的微流场剥离晶圆表面颗粒，避免损伤精细结构"},{t:"颗粒污染",d:"落在晶圆上的微粒，会造成图形缺陷、短路或漏电"},{t:"湿法清洗",d:"用化学药液（SC1/SC2 等）去除颗粒与金属离子，是清洗主流手段"}]},
+  {id:"n14", stage:"fab2", sev:2, name:"CMP 化学机械抛光", sub:"多层互连的“磨平”工艺", sup:"设备 AMAT · 材料 不二见/陶氏等", role:"把晶圆表面磨平后再沉积下一层，芯片内部数百层互连靠它成型。", tech:"CMP 设备 + 抛光液/抛光垫", suppliers:["应用材料 AMAT（设备，美国）","不二见 Fujimi（日本，抛光液）","昭和电工（日本）","Entegris 原Cabot（美国）","陶氏 Dow（美国，抛光垫）"], prog:"设备国产化率约39%，材料约30%（安集科技等突破中）。", note:"设备与材料双卡，材料端日系占比约70%。",why:"多层互连要求每层表面全局平坦，否则下一层光刻无法对焦。CMP 用化学腐蚀+机械研磨把晶圆磨平，是 3D 集成结构得以堆叠的前提。",terms:[{t:"CMP",d:"化学机械抛光：磨料+药液在抛光垫上研磨，实现全局平坦化"},{t:"平坦化",d:"把高低起伏的表面磨平，保证下一层光刻景深（焦点范围）"},{t:"铜互连",d:"先进制程用铜作导线，CMP 是形成铜互连的关键工序之一"}]},
+  {id:"n15", stage:"fab2", sev:3, name:"量检测", sub:"缺陷检测与关键尺寸量测", sup:"KLA · AMAT · Onto Innovation", role:"逐片检查缺陷、测量线宽，决定良率与成本，先进制程的“质检之眼”。", tech:"光学/电子束缺陷检测、关键尺寸量测", suppliers:["KLA 科磊（美国，近乎垄断）","应用材料 AMAT（美国）","Onto Innovation（美国）"], prog:"中科飞测、上海精测等突破中，国产化率约10%。", note:"KLA 在先进节点量检测地位极难替代。",why:"缺陷必须及时检出，否则不合格芯片一路做到底，浪费巨大。量检测为工艺控制提供数据，是提升良率与稳定性的眼睛。",terms:[{t:"缺陷检测",d:"找出晶圆上的颗粒、划痕、图形缺陷，如光学明场/暗场检测"},{t:"CD-SEM",d:"关键尺寸量测：用电子束量测线宽等关键尺寸，验证图形是否达标"},{t:"良率",d:"合格芯片的比例，量检测是发现并提升良率的核心手段"}]},
+  {id:"n16", stage:"asm", sev:2, name:"晶圆测试 CP", sub:"切割前逐颗电测", sup:"爱德万 · 泰瑞达", role:"在晶圆上直接对每颗 die 做电性能测试，筛出坏片。", tech:"SoC 测试机（ATE）与探针台", suppliers:["爱德万 Advantest（日本）","泰瑞达 Teradyne（美国）"], prog:"华峰测控等覆盖模拟/部分 SoC，高端测试机仍双寡头垄断。", note:"探针卡（FormFactor 等）同样依赖进口。",why:"晶圆上几百颗芯片一起制造，切割前先电测，筛掉坏 die，避免封装成本浪费。CP 是成本控制的第一道闸门。",terms:[{t:"CP（晶圆测试）",d:"Chip Probing：探针接触芯片焊盘，测每颗 die 的电性能并标记坏 die"},{t:"良率筛选",d:"把不达标的 die 打上墨点标记，封装前剔除"},{t:"探针台",d:"高精度接触晶圆的设备，与测试机配合完成电测"}]},
+  {id:"n17", stage:"asm", sev:1, name:"减薄切割", sub:"晶圆减薄 → 划片成裸片", sup:"DISCO · 东京精密", role:"把晶圆背面磨薄并切割成独立芯片，为封装做准备。", tech:"晶圆减薄机、划片机（刀切/激光）", suppliers:["DISCO 迪思科（日本）","东京精密（日本）"], prog:"国内光力科技等追赶中。", note:"减薄/切割设备以日系为主。",why:"晶圆测试后要减薄（改善散热并利于封装）并划片成一颗颗裸片，才能进入封装。切割精度直接影响芯片强度与良率。",terms:[{t:"减薄",d:"把晶圆背面磨薄至几十微米，改善散热并便于封装"},{t:"划片",d:"用金刚石刀片或激光把晶圆切成独立裸片（die）"},{t:"裸片（die）",d:"单颗芯片，封装前的形态"}]},
+  {id:"n18", stage:"asm", sev:2, name:"封装", sub:"传统封装自主 · 先进封装被卡", sup:"TSMC · 日月光 · Amkor", role:"把裸片封装进外壳并引出引脚；AI 芯片依赖 2.5D/3D 先进封装。", tech:"先进封装（CoWoS、2.5D/3D、混合键合）", suppliers:["台积电 TSMC（中国台湾，CoWoS 独占）","日月光 ASE（中国台湾）","Amkor 安靠（美国）"], prog:"长电、通富、华天居全球封测第一梯队，传统封装强；先进封装有代差。", note:"AI 芯片的 CoWoS 产能基本被台积电包揽。",why:"裸片脆弱易碎，必须封装成可焊接的成品芯片；先进封装还承担多芯片高速互连（如 GPU+HBM 集成），成为 AI 芯片性能的关键。",terms:[{t:"先进封装",d:"2.5D/3D 封装：用 TSV/中介层把多芯片高速互联，突破单芯片面积与带宽限制"},{t:"TSV",d:"硅通孔：穿透硅片的垂直导电通道，是 3D 集成的核心"},{t:"CoWoS",d:"台积电的 2.5D 封装技术，AI 芯片（GPU+HBM）的标准方案"},{t:"传统封装",d:"引线键合/倒装封装，主要功能是保护芯片与引出引脚"}]},
+  {id:"n19", stage:"asm", sev:2, name:"成品测试 FT", sub:"封装后最终性能测试", sup:"爱德万 · 泰瑞达", role:"对成品芯片做全功能测试与分选，决定出货品质。", tech:"最终测试设备与分选机", suppliers:["爱德万 Advantest（日本）","泰瑞达 Teradyne（美国）"], prog:"国产测试设备份额提升中。", note:"高端测试机/测试座仍依赖美日。",why:"封装后的芯片必须做最终功能与参数测试，并按性能分档出货。FT 保证出货质量，也决定芯片能卖出什么价格。",terms:[{t:"FT（成品测试）",d:"Final Test：对封装后芯片做全功能/参数测试"},{t:"分档（binning）",d:"按频率/功耗等把芯片分成不同等级，如同型号 CPU 的高频与低频版本"},{t:"分选机",d:"根据测试结果把芯片自动分入对应料盒的设备"}]},
+  {id:"n20", stage:"final", sev:3, name:"HBM 高带宽存储", sub:"AI 芯片的“高速内存”", sup:"SK海力士 · 三星 · 美光", role:"与先进逻辑芯片堆叠封装的高带宽内存，AI 算力关键配套。", tech:"HBM 堆叠（TSV、混合键合）与先进节点 DRAM", suppliers:["SK海力士（韩国，主导）","三星（韩国）","美光（美国）"], prog:"国产 HBM 尚在攻关阶段。", note:"HBM 及其关键设备与先进制程强绑定，高度集中。",why:"AI 芯片受困于「内存墙」：算力增长远超内存带宽。HBM 用 TSV 把多层 DRAM 垂直堆叠，并通过硅中介层与 GPU 高速互连，把带宽提升一个量级。",terms:[{t:"HBM",d:"High Bandwidth Memory 高带宽内存：TSV 堆叠的 DRAM 堆栈"},{t:"内存墙",d:"处理器算力增长远快于内存带宽，成为 AI 计算瓶颈"},{t:"TSV 堆叠",d:"硅通孔垂直穿通多层 DRAM，互连密度远超传统 PCB 布线"},{t:"硅中介层",d:"无源硅片，承载 GPU 与 HBM 并负责布线互连"}],upd:"2026-10 · 大连厂扩产 + 设备许可谈判"},
+  {id:"n21", stage:"final", sev:3, name:"AI 训练 GPU", sub:"先进算力芯片成品", sup:"NVIDIA（高端对华禁售）", role:"AI 大模型训练与推理的核心算力芯片，先进制程+先进封装+高端存储三重集成。", tech:"高端 AI GPU（先进制程设计+CoWoS 封装+HBM）", suppliers:["NVIDIA 英伟达（美国，高端型号对华禁售）"], prog:"华为昇腾、寒武纪等国产替代推进中，性能与生态差距仍大。", note:"受到设备、EDA、HBM、先进封装的多重限制。",why:"大模型训练需要海量并行算力。GPU/AI 加速器以数千个计算核心并行运算，配合 HBM 高带宽显存，是 AI 时代的算力底座。",terms:[{t:"GPU",d:"图形处理器：因并行计算能力强，成为 AI 训练主力"},{t:"CUDA",d:"NVIDIA 的并行计算平台与软件生态，AI 软件栈的根基"},{t:"张量核心",d:"GPU 中专为矩阵运算设计的单元，AI 算力的主要来源"},{t:"显存（HBM）",d:"GPU 训练时的高带宽内存，见 HBM 环节"}]},
+  {id:"n22", stage:"app", sev:2, name:"手机旗舰 SoC", sub:"终端设备的核心计算芯片", sup:"苹果 · 高通 · 联发科", role:"高端手机的大脑：自研 SoC + 5G 基带，决定旗舰机性能与功耗。", tech:"3nm 手机 SoC（CPU/GPU/NPU）+ 5G 基带", suppliers:["苹果 Apple（美国，自研 A 系列）","高通 Qualcomm（美国，骁龙）","联发科 MediaTek（中国台湾）"], prog:"华为麒麟回归但先进制程产能受制，紫光展锐主攻中低端。", note:"旗舰 SoC 由台积电先进制程代工，苹果/高通主导高端。",why:"手机的核心算力全部集成在一颗 SoC 上，其制程与架构决定手机性能与功耗。旗舰 SoC 是先进制程最大的客户，也是国产突围的焦点。",terms:[{t:"SoC",d:"系统级芯片：集成 CPU/GPU/NPU/基带/ISP 等的单芯片"},{t:"NPU",d:"神经网络处理单元，负责手机端 AI 计算"},{t:"制程节点",d:"如 3nm/5nm，决定晶体管密度与能效，越小越先进"}]},
+  {id:"n23", stage:"app", sev:3, name:"AI 服务器与数据中心", sub:"大模型算力的系统载体", sup:"NVIDIA · 谷歌 TPU · AWS Trainium", role:"把 AI 芯片组成集群的服务器与数据中心，是算力落地的最终形态。", tech:"GPU/NPU 集群 + 高速互联（NVLink/InfiniBand/超节点）", suppliers:["NVIDIA 英伟达（美国，整机系统）","谷歌（TPU，自用）","亚马逊（Trainium，自用）"], prog:"昇腾/寒武纪整机生态（浪潮等）崛起，软件栈与生态仍有差距。", note:"英伟达高端产品对华禁售后，国产 AI 集群替代加速。",why:"单颗芯片算力有限，AI 服务器把多颗 GPU/加速卡高速互联成训练/推理系统，配高带宽网络与散热，是大模型算力的物理载体。",terms:[{t:"AI 服务器",d:"多 GPU 互联的高密度服务器，含高速互联、供电与散热系统"},{t:"NVLink/NVSwitch",d:"NVIDIA 的多 GPU 高速互联技术，决定集群训练扩展性"},{t:"液冷",d:"高功率 AI 服务器的散热方案，风冷已到极限"}]},
+  {id:"n24", stage:"app", sev:2, name:"自动驾驶芯片", sub:"高阶智驾的“车规级大脑”", sup:"NVIDIA · 特斯拉 · Mobileye", role:"智能驾驶域控的算力芯片，车规可靠性要求高于消费芯片。", tech:"车规级 AI SoC（功能安全、低功耗）", suppliers:["NVIDIA 英伟达（美国，Orin/Thor）","特斯拉（美国，自研 FSD）","Mobileye（以色列/英特尔）"], prog:"地平线、黑芝麻量产上车，华为 MDC 主攻高端，渗透率快速提升。", note:"国际仍以英伟达为主流，国产高阶方案加速渗透。",why:"智驾需要实时处理海量传感器数据（摄像头/雷达），车规级 AI 芯片提供高算力、低功耗、高可靠的边缘计算，是高阶智驾的「大脑」。",terms:[{t:"车规级",d:"满足车用温度/寿命/安全标准的芯片等级，要求远高于消费级"},{t:"ADAS",d:"Advanced Driver Assistance System 高级驾驶辅助系统"},{t:"冗余设计",d:"安全关键系统做双份计算，任一失效仍可安全运行"}]}
+];
+var MATS = [
+  {id:"m1", sev:3, name:"光刻胶（ArF/EUV）", cols:["fab"], sup:"JSR · 东京应化 · 信越化学", role:"光刻工艺的核心耗材，纯度与分辨率直接决定良率。", tech:"ArF/EUV 高端光刻胶", suppliers:["JSR（日本）","东京应化 TOK（日本）","信越化学（日本）"], prog:"高端光刻胶日本占约90%，国产化率&lt;20%，EUV 光刻胶≈0。", note:"2025年11月起 ArF/EUV 光刻胶被日本纳入出口管制，逐案审批。",why:"光刻胶是光刻的「感光胶片」：其分辨率直接决定可做的最小线宽。先进制程用 ArF/EUV 胶被日系垄断，是材料端最硬的卡脖子点。",terms:[{t:"化学放大光刻胶",d:"含光致产酸剂（PAG），曝光后酸催化反应放大灵敏度，KrF/ArF/EUV 胶均为此体系"},{t:"ArF 胶",d:"193nm 光刻用胶，先进节点（28nm 以下）标配"},{t:"LWR",d:"线宽粗糙度：胶图形边缘的粗糙会恶化器件性能，高端胶的难点"}]},
+  {id:"m2", sev:2, name:"电子特气", cols:["fab","fab2"], sup:"液化空气 · 林德 · 大阳日酸", role:"刻蚀、沉积、清洗环节的“血液”，数十种高纯气体。", tech:"高纯电子特气（刻蚀气/沉积气/载气）", suppliers:["液化空气（法国）","林德（德国/美国）","大阳日酸（日本）","空气化工（美国）"], prog:"华特气体、金宏气体等部分品种放量，整体仍依赖外资。", note:"先进制程所需超纯气体几乎被四大外资垄断。",why:"从沉积、刻蚀到清洗，几乎每道工艺都用气体。特气纯度直接决定膜层质量与器件良率，供应被欧美日四大巨头垄断约 86%。",terms:[{t:"电子特气",d:"半导体工艺用高纯气体：硅烷、氨气、NF₃、光刻气、载气等"},{t:"光刻气",d:"稀有气体混合（Kr/Ar/Xe 等），是光刻机光源的工作气体"},{t:"纯度等级",d:"电子特气要求 ppb/ppt 级杂质控制，杂质会引入缺陷"}]},
+  {id:"m3", sev:2, name:"CMP 抛光材料", cols:["raw","fab2"], sup:"不二见 · 昭和电工 · Entegris · 陶氏", role:"抛光液与抛光垫，CMP 工艺的消耗性材料。", tech:"CMP 抛光液 / 抛光垫", suppliers:["不二见 Fujimi（日本）","昭和电工（日本）","Entegris 原Cabot（美国）","陶氏 Dow（美国）"], prog:"安集科技等国产化率约30%。", note:"日系占全球约70%。",why:"CMP 平坦化依赖抛光液与抛光垫这对消耗品：磨料粒径决定去除率与划伤，泡孔结构决定平坦化能力，材料配方是核心壁垒。",terms:[{t:"抛光液",d:"胶体二氧化硅磨料+氧化剂+添加剂，粒径分布决定去除率与缺陷"},{t:"抛光垫",d:"聚氨酯发泡垫，泡孔存浆料并决定平坦化能力"},{t:"终点检测",d:"抛光到目标厚度时自动停止的机制，防止过抛"}]},
+  {id:"m4", sev:2, name:"溅射靶材", cols:["fab"], sup:"JX金属 · 霍尼韦尔 · 东曹", role:"PVD 沉积用的高纯金属靶材。", tech:"高纯溅射靶材（铜/钛/钽等）", suppliers:["JX金属 日矿（日本）","霍尼韦尔（美国）","东曹 Tosoh（日本）"], prog:"江丰电子、有研新材进入主流产线，高端靶材仍有差距。", note:"日美厂商主导高端市场。",why:"金属互连与阻挡层靠溅射沉积，靶材纯度与晶粒组织决定膜层均匀性与缺陷率。高纯靶材（5N-6N）被日美主导。",terms:[{t:"溅射",d:"Ar 等离子体轰击靶材，溅出金属原子沉积成膜（PVD）"},{t:"靶材纯度",d:"5N-6N（99.999%-99.9999%），杂质原子会污染器件"},{t:"织构",d:"靶材晶粒取向控制，影响溅射速率与膜厚均匀性"}]},
+  {id:"m5", sev:1, name:"湿电子化学品", cols:["fab2"], sup:"巴斯夫 · 三菱化学 · 关东化学", role:"清洗与蚀刻用的超高纯化学试剂。", tech:"超高纯湿电子化学品（双氧水/硫酸/氨水等）", suppliers:["巴斯夫（德国）","三菱化学（日本）","关东化学（日本）"], prog:"国产化率提升较快，高端 G5 级仍依赖进口。", note:"先进节点对金属杂质要求达到 ppt 级。",why:"清洗、刻蚀、去胶都要用高纯试剂，其金属杂质（ppt 级）直接决定晶圆洁净度。G5 级最高纯度试剂被巴斯夫等垄断。",terms:[{t:"湿电子化学品",d:"高纯双氧水、硫酸、氨水等工艺试剂，用于清洗与刻蚀"},{t:"G5 级",d:"金属杂质控制在 ppt 级的最高纯度等级，先进节点必需"},{t:"亚沸蒸馏",d:"低于沸点温度蒸馏提纯，避免沸腾过程带入杂质"}]}
+];
+
+/* ===== 公司档案库（行情快照：2026-10-16 收盘；未收录的标注交易所/未上市，不展示虚构数值） ===== */
+var COS = {
+  /* ---- 美股 ---- */
+  ASML:{n:"阿斯麦 ASML", m:"美股 · ASML.O", p:"1641.52 美元", c:-0.96, y:null, pe:42.3, cap:"市值 6465亿美元", tech:"EUV 极紫外光刻 + High-NA 研发", d:"荷兰光刻机巨头，7nm 以下制程绕不开的 EUV 唯一供应商"},
+  SNPS:{n:"新思科技", m:"美股 · SNPS.O", p:"454.63 美元", c:-2.88, y:null, pe:80.9, cap:"市值 871亿美元", tech:"全流程数字 EDA：综合/布局布线/时序签核", d:"全球 EDA 三巨头之首，先进制程设计工具的事实标准"},
+  CDNS:{n:"楷登电子", m:"美股 · CDNS.O", p:"319.51 美元", c:-1.50, y:null, pe:63.9, cap:"市值 880亿美元", tech:"数字实现 + 模拟混合信号 + 验证平台", d:"EDA 双寡头之一，与台积电先进工艺 PDK 深度绑定"},
+  AMAT:{n:"应用材料", m:"美股 · AMAT.O", p:"409.29 美元", c:-4.82, y:null, pe:35.1, cap:"市值 3248亿美元", tech:"PVD/CVD/离子注入/CMP/刻蚀 平台型设备", d:"全球最大半导体设备商，沉积、注入等环节霸主"},
+  LRCX:{n:"泛林集团", m:"美股 · LRCX.O", p:"263.94 美元", c:-4.87, y:null, pe:45.5, cap:"市值 3303亿美元", tech:"介质/导体刻蚀、ALE、沉积与清洗", d:"全球刻蚀设备龙头，3D NAND 刻蚀份额领先"},
+  KLAC:{n:"科磊", m:"美股 · KLAC.O", p:"165.74 美元", c:-5.00, y:null, pe:44.8, cap:"市值 2163亿美元", tech:"光学/电子束缺陷检测与关键尺寸量测", d:"量检测设备近乎垄断，先进制程良率的守护者"},
+  TSM:{n:"台积电", m:"美股 · TSM.N", p:"412.61 美元", c:-2.28, y:35.8, pe:27.1, cap:"市值 2.14万亿美元", tech:"先进制程代工 + CoWoS/SoIC 先进封装", d:"全球晶圆代工龙头，3nm/2nm 与 AI 封装产能独步"},
+  MU:{n:"美光", m:"美股 · MU.O", p:"878.84 美元", c:-5.63, y:207.9, pe:11.7, cap:"市值 9943亿美元", tech:"HBM3E / DRAM / NAND 存储", d:"美国存储巨头，HBM 三强之一，10 月回调明显"},
+  NVDA:{n:"英伟达", m:"美股 · NVDA.O", p:"214.13 美元", c:-1.43, y:null, pe:26.8, cap:"市值 5.16万亿美元", tech:"AI GPU（Blackwell 等）+ CUDA 生态", d:"AI 算力芯片绝对龙头，高端型号对华禁售"},
+  ARM:{n:"安谋 Arm", m:"美股 · ARM.O", p:"227.80 美元", c:-6.94, y:108.4, pe:233.0, cap:"市值 2433亿美元", tech:"CPU IP 授权（Cortex/Armv9）", d:"全球移动/服务器 CPU IP 霸主，先进架构授权受出口管制约束"},
+  /* ---- A股（人民币） ---- */
+  HDJT:{n:"华大九天", m:"A股 · 301269", p:"98.35 元", c:-0.30, y:-7.5, pe:null, cap:"市值 539亿元", tech:"模拟/数字全流程 EDA，全定制与电路仿真见长", d:"国产 EDA 龙头，覆盖模拟全流程与部分数字流程，10 月 +16.2%"},
+  GL:{n:"概伦电子", m:"A股 · 688206", p:"31.19 元", c:-1.58, y:-10.5, pe:null, cap:"市值 166亿元", tech:"器件建模 / SPICE 仿真 / 制造类 EDA（DTCO）", d:"以器件建模与电路仿真起家，对标新思部分产品"},
+  BFHC:{n:"北方华创", m:"A股 · 002371", p:"593.63 元", c:-2.68, y:29.3, pe:76.0, cap:"市值 4321亿元", tech:"刻蚀/薄膜沉积/清洗/炉管 平台型设备", d:"国产半导体设备平台龙头，产品线最全"},
+  ZW:{n:"中微公司", m:"A股 · 688012", p:"295.22 元", c:-0.82, y:8.3, pe:66.8, cap:"市值 2828亿元", tech:"CCP/ICP 介质刻蚀 + MOCVD", d:"介质刻蚀已通过先进节点验证，MOCVD 全球领先"},
+  SMIC:{n:"中芯国际", m:"A股 · 688981", p:"102.66 元", c:-1.70, y:-16.4, pe:122.0, cap:"市值 8790亿元", tech:"成熟制程 + FinFET 先进制程代工", d:"大陆最大晶圆代工厂，先进制程受设备出口管制约束"},
+  GS:{n:"沪硅产业", m:"A股 · 688126", p:"19.08 元", c:-0.47, y:-11.8, pe:null, cap:"市值 631亿元", tech:"300mm 大硅片（外延/SOI）", d:"国产大硅片龙头，产能爬坡中，全球市占率仍低"},
+  SM:{n:"盛美上海", m:"A股 · 688082", p:"263.27 元", c:-0.65, y:49.5, pe:75.6, cap:"市值 1278亿元", tech:"单片/槽式清洗 + 电镀/先进封装设备", d:"清洗设备已进入主流产线，SAPS 兆声波清洗独有"},
+  TJ:{n:"拓荆科技", m:"A股 · 688072", p:"663.00 元", c:+2.79, y:100.9, pe:89.1, cap:"市值 1937亿元", tech:"PECVD/ALD/SACVD 薄膜沉积", d:"国产薄膜沉积龙头，产品覆盖逻辑与存储"},
+  ZKFC:{n:"中科飞测", m:"A股 · 688361", p:"336.00 元", c:-1.75, y:119.6, pe:null, cap:"市值 1183亿元", tech:"晶圆缺陷检测/量测设备", d:"国产量检测设备代表，先进节点验证推进中"},
+  HBL:{n:"寒武纪", m:"A股 · 688256", p:"915.00 元", c:+1.99, y:-32.5, pe:172.7, cap:"市值 5754亿元", tech:"AI 训练/推理芯片（思元系列）+ 软件栈", d:"国产 AI 芯片第一股，云端训练芯片主力"},
+  AJ:{n:"安集科技", m:"A股 · 688019", p:"188.00 元", c:+1.68, y:-13.7, pe:45.7, cap:"市值 429亿元", tech:"CMP 抛光液 / 功能性湿电子化学品", d:"国产抛光液龙头，打破日美垄断"},
+  JF:{n:"江丰电子", m:"A股 · 300666", p:"176.40 元", c:-1.97, y:91.7, pe:61.9, cap:"市值 487亿元", tech:"超高纯溅射靶材（铜/钛/钽/钨）", d:"国产靶材龙头，已进入国际主流产线"},
+  SY:{n:"石英股份", m:"A股 · 603688", p:"36.24 元", c:+0.22, y:-0.9, pe:142.4, cap:"市值 196亿元", tech:"高纯石英砂 / 石英坩埚与器件", d:"国内半导体级石英材料龙头，高端料仍有差距"},
+  ZH:{n:"TCL中环", m:"A股 · 002129", p:"9.37 元", c:+1.52, y:9.3, pe:null, cap:"市值 379亿元", tech:"区熔单晶 / 大尺寸硅片", d:"光伏与半导体双主业，半导体大硅片扩产中"},
+  CD:{n:"长电科技", m:"A股 · 600584", p:"56.96 元", c:-0.94, y:54.9, pe:52.6, cap:"市值 1019亿元", tech:"FC / 2.5D / 3D 先进封装与系统级封装", d:"全球封测前三，先进封装追赶中"},
+  TF:{n:"通富微电", m:"A股 · 002156", p:"48.67 元", c:-2.17, y:29.1, pe:30.7, cap:"市值 776亿元", tech:"FCBGA / Chiplet 先进封装", d:"AMD 核心封测伙伴，Chiplet 产线领先"},
+  XYW:{n:"芯源微", m:"A股 · 688037", p:"299.16 元", c:+2.07, y:101.4, pe:null, cap:"市值 605亿元", tech:"涂胶显影 Track / 单片湿法设备", d:"国产涂胶显影龙头，先进节点验证中"},
+  HFC:{n:"华峰测控", m:"A股 · 688200", p:"319.49 元", c:-3.23, y:68.0, pe:84.9, cap:"市值 643亿元", tech:"模拟/混合信号/SoC 测试机", d:"国产测试机龙头，模拟测试全球市占率靠前"},
+  ZYCX:{n:"兆易创新", m:"A股 · 603986", p:"281.86 元", c:+1.31, y:31.6, pe:25.0, cap:"市值 1984亿元", tech:"NOR Flash / 利基 DRAM / MCU", d:"国产存储与 MCU 龙头，DRAM 自研推进中"},
+  /* ---- 无美股/A股行情：标注上市地或未上市，行情未收录不展示数值 ---- */
+  SIBELCO:{n:"Sibelco 尤尼明", m:"比利时 · 未上市", tech:"高纯石英砂提纯，Spruce Pine 矿源", d:"全球高纯石英砂霸主，半导体级料近乎垄断"},
+  TQC:{n:"TQC", m:"挪威 · 未上市", tech:"高纯石英砂提纯", d:"全球高纯石英砂双寡头之一"},
+  WACK:{n:"瓦克化学", m:"德股 · WCH", tech:"电子级多晶硅/硅烷", d:"欧洲多晶硅与有机硅巨头，作参照非垄断"},
+  TOG:{n:"通威股份", m:"A股 · 600438", tech:"西门子法多晶硅", d:"全球多晶硅产能龙头（行情未收录）"},
+  DQ:{n:"大全能源", m:"A股 · 688303", tech:"多晶硅（流化床法）", d:"国内多晶硅主力（行情未收录）"},
+  GCL:{n:"协鑫科技", m:"港股 · 03800", tech:"颗粒硅（流化床法）", d:"多晶硅新技术路线代表（行情未收录）"},
+  JSC:{n:"晶盛机电", m:"A股 · 300316", tech:"拉晶炉/单晶生长设备", d:"全球主要单晶炉设备商（行情未收录）"},
+  SHIN:{n:"信越化学", m:"日股 · 4063", tech:"300mm 硅片/光刻胶/石英", d:"全球硅片与光刻胶综合材料巨头"},
+  SUM:{n:"SUMCO", m:"日股 · 3436", tech:"300mm/450mm 硅片", d:"全球第二大硅片厂"},
+  GWC:{n:"环球晶圆", m:"台股 · 6488", tech:"大尺寸硅片（含 GaN/SiC）", d:"全球第三大硅片厂"},
+  SILT:{n:"Siltronic", m:"德股 · WAF", tech:"300mm 硅片", d:"德国硅片厂，欧系代表"},
+  SIE:{n:"西门子 EDA", m:"德股 · SIE", tech:"Calibre 物理验证/模拟混合信号", d:"EDA 三巨头之一，并购 Mentor 而来"},
+  XL:{n:"芯来科技", m:"未上市", tech:"RISC-V 处理器 IP", d:"国产 RISC-V IP 代表"},
+  PTG:{n:"平头哥（阿里）", m:"未上市", tech:"RISC-V 玄铁系列 IP", d:"阿里旗下开源 RISC-V IP 生态"},
+  DNP:{n:"DNP 大日本印刷", m:"日股 · 7912", tech:"先进掩膜版/护膜", d:"掩膜版双寡头之一"},
+  TOP:{n:"Toppan 凸版", m:"日股 · 7911", tech:"先进掩膜版", d:"掩膜版双寡头之一"},
+  PHO:{n:"Photronics", m:"美股 · PLAB", tech:"掩膜版制造", d:"美国掩膜厂（行情未收录）"},
+  HOYA:{n:"HOYA", m:"日股 · 7741", tech:"掩膜基板/护膜/EUV 空白掩膜", d:"EUV 空白掩膜重要供应商"},
+  QY:{n:"清溢光电", m:"A股 · 688138", tech:"掩膜版制造", d:"国产掩膜厂（行情未收录）"},
+  LW:{n:"路维光电", m:"A股 · 688401", tech:"掩膜版制造", d:"国产掩膜厂（行情未收录）"},
+  TEL:{n:"东京电子 TEL", m:"日股 · 8035", tech:"涂胶显影/刻蚀/沉积", d:"涂胶显影全球约 91% 份额，综合设备巨头"},
+  NK:{n:"尼康 Nikon", m:"日股 · 7731", tech:"ArF/i 线 DUV 光刻机", d:"DUV 光刻机双雄之一"},
+  CN:{n:"佳能 Canon", m:"日股 · 7751", tech:"i 线光刻/纳米压印", d:"DUV 光刻机玩家，押注纳米压印路线"},
+  SMEE:{n:"上海微电子 SMEE", m:"未上市", tech:"90nm 级 DUV 光刻机（更先进制程在研）", d:"国产光刻机主力，与 ASML 差距仍大"},
+  ASMI:{n:"ASM International", m:"荷股 · ASM", tech:"ALD 原子层沉积", d:"ALD 设备全球龙头（行情未收录）"},
+  ACLS:{n:"Axcelis 亚舍立", m:"美股 · ACLS", tech:"高能离子注入机", d:"离子注入双寡头之一（行情未收录）"},
+  WY:{n:"万业企业", m:"A股 · 600641", tech:"离子注入机（凯世通）", d:"国产离子注入代表（行情未收录）"},
+  SCREEN:{n:"迪恩士 SCREEN", m:"日股 · 7735", tech:"单片清洗/涂胶显影", d:"清洗设备全球龙头"},
+  FUJ:{n:"不二见 Fujimi", m:"日股 · 6136", tech:"CMP 抛光液", d:"抛光液日系霸主"},
+  DOW:{n:"陶氏 Dow", m:"美股 · DOW", tech:"CMP 抛光垫", d:"抛光垫全球龙头（行情未收录）"},
+  HDQ:{n:"华海清科", m:"A股 · 688120", tech:"CMP 设备", d:"国产 CMP 设备龙头（行情未收录）"},
+  ONTO:{n:"Onto Innovation", m:"美股 · ONTO", tech:"晶圆缺陷检测/量测", d:"量检测三强之一（行情未收录）"},
+  ADT:{n:"爱德万 Advantest", m:"日股 · 6857", tech:"SoC/存储测试机", d:"高端测试机双寡头之一"},
+  TER:{n:"泰瑞达 Teradyne", m:"美股 · TER", tech:"SoC/模拟测试机", d:"高端测试机双寡头之一（行情未收录）"},
+  CC:{n:"长川科技", m:"A股 · 300604", tech:"测试机/分选机", d:"国产测试设备代表（行情未收录）"},
+  DISCO:{n:"迪思科 DISCO", m:"日股 · 6146", tech:"晶圆减薄/划片/激光切割", d:"减薄划片设备全球霸主"},
+  TJM:{n:"东京精密", m:"日股 · 7729", tech:"划片机/量测", d:"日系减薄划片双雄之一"},
+  GLKJ:{n:"光力科技", m:"A股 · 300480", tech:"划片机/精密磨削", d:"国产划片设备代表（行情未收录）"},
+  ASE:{n:"日月光 ASE", m:"台股 · 3711", tech:"先进封装/测试", d:"全球封测龙头之一"},
+  AMKR:{n:"安靠 Amkor", m:"美股 · AMKR", tech:"先进封装/测试", d:"全球封测前三（行情未收录）"},
+  SKH:{n:"SK 海力士", m:"韩股 · 000660", tech:"HBM3E/DRAM（TSV/混合键合）", d:"HBM 全球领导者"},
+  SAMS:{n:"三星电子", m:"韩股 · 005930", tech:"HBM/DRAM/先进制程", d:"存储与代工巨头，HBM 追赶中"},
+  CXC:{n:"长鑫存储", m:"未上市", tech:"DRAM（17nm 级）", d:"国产 DRAM 主力，HBM 攻关中"},
+  LQ:{n:"液化空气", m:"法股 · AI", tech:"高纯电子特气", d:"全球工业气体巨头"},
+  LIN:{n:"林德", m:"美股 · LIN", tech:"高纯电子特气", d:"全球气体巨头（行情未收录）"},
+  TSN:{n:"大阳日酸", m:"日股 · 4091", tech:"高纯电子特气", d:"日本气体巨头"},
+  HT:{n:"华特气体", m:"A股 · 688268", tech:"特种气体", d:"国产电子特气代表（行情未收录）"},
+  JH:{n:"金宏气体", m:"A股 · 688106", tech:"大宗气体/电子气体", d:"国产气体厂商（行情未收录）"},
+  SKW:{n:"昭和电工", m:"日股 · 4004", tech:"抛光液/电子材料", d:"日系材料综合厂"},
+  ENTG:{n:"Entegris", m:"美股 · ENTG", tech:"抛光液（原 Cabot）/过滤材料", d:"美国材料巨头（行情未收录）"},
+  JX:{n:"JX 金属", m:"日股 · 5016", tech:"高纯溅射靶材", d:"全球靶材龙头"},
+  HON:{n:"霍尼韦尔", m:"美股 · HON", tech:"高纯靶材", d:"美系靶材供应商（行情未收录）"},
+  TOS:{n:"东曹 Tosoh", m:"日股 · 4042", tech:"靶材/锆材", d:"日系靶材与材料厂商"},
+  YX:{n:"有研新材", m:"A股 · 600206", tech:"靶材/高纯金属", d:"国产靶材厂商（行情未收录）"},
+  BASF:{n:"巴斯夫", m:"德股 · BAS", tech:"超高纯湿化学品", d:"全球化工巨头"},
+  MH:{n:"三菱化学", m:"日股 · 4188", tech:"湿电子化学品", d:"日系湿化学品主力"},
+  KDH:{n:"关东化学", m:"日股 · 3526", tech:"超高纯试剂", d:"日系高纯试剂厂商"},
+  JR:{n:"晶瑞电材", m:"A股 · 300655", tech:"湿电子化学品/光刻胶", d:"国产湿化学品代表（行情未收录）"},
+  JHW:{n:"江化微", m:"A股 · 603078", tech:"湿电子化学品", d:"国产湿化学品厂商（行情未收录）"},
+  WDNM:{n:"微导纳米", m:"A股 · 688147", p:"78.55 元", c:-0.11, y:25.1, pe:281.8, cap:"市值 365亿元", tech:"ALD/PECVD/PVD 薄膜沉积设备", d:"国产薄膜沉积新锐：ALD 起家，2026-10 湾芯展发布 PVD 磁控溅射新品", upd:"2026-10 新上榜企业"},
+  ND:{n:"南大光电", m:"A股 · 300346", tech:"ArF 光刻胶/前驱体", d:"国产光刻胶突破代表（行情未收录）"},
+  TC:{n:"彤程新材", m:"A股 · 603650", tech:"ArF 光刻胶（北京科华）", d:"国产光刻胶代表（行情未收录）"},
+  JSR:{n:"JSR", m:"日股 · 4185", tech:"ArF/EUV 光刻胶", d:"高端光刻胶龙头"},
+  TOK:{n:"东京应化 TOK", m:"日股 · 4186", tech:"光刻胶全系列", d:"光刻胶双雄之一"},
+  ASCH:{n:"华为昇腾", m:"未上市", tech:"昇腾 AI 芯片（910 系列）+ MindSpore", d:"国产 AI 算力主力，生态持续建设"}
+};
+/* 补充与升级条目（2026-10-16 收盘；日/韩/港股行情已收录，覆盖轻量占位） */
+Object.assign(COS, {
+  /* 终端与应用（美股） */
+  AAPL:{n:"苹果 Apple", m:"美股 · AAPL.O", p:"343.46 美元", c:+0.43, y:26.3, pe:38.9, cap:"市值 5.01万亿美元", tech:"自研手机 SoC（A 系列）与系统级整合", d:"全球高端手机与自研芯片标杆，台积电先进制程最大客户"},
+  QCOM:{n:"高通 Qualcomm", m:"美股 · QCOM.O", p:"172.11 美元", c:-3.53, y:0.6, pe:19.8, cap:"市值 1838亿美元", tech:"手机 SoC（骁龙）+ 5G 基带 / IP 授权", d:"安卓旗舰 SoC 霸主，基带与专利授权模式"},
+  TSLA:{n:"特斯拉 Tesla", m:"美股 · TSLA.O", p:"354.72 美元", c:-2.13, y:null, pe:368.3, cap:"市值 1.40万亿美元", tech:"自研 FSD 芯片与 Dojo 超算", d:"智驾自研芯片代表，端到端智驾路线"},
+  /* 日股（日元） */
+  TEL:{n:"东京电子 TEL", m:"日股 · 8035", p:"10630 日元", c:+2.56, y:null, pe:null, cap:"市值约 5万亿日元", tech:"涂胶显影/刻蚀/沉积设备", d:"涂胶显影全球约 91% 份额；9 月底拆股，年内涨跌不具可比性"},
+  SHIN:{n:"信越化学", m:"日股 · 4063", p:"5978 日元", c:+0.25, y:22.7, pe:null, cap:"市值约 12万亿日元", tech:"300mm 硅片/光刻胶/石英", d:"全球硅片与光刻胶综合材料巨头"},
+  SCREEN:{n:"迪恩士 SCREEN", m:"日股 · 7735", p:"13815 日元", c:+1.84, y:-9.4, pe:null, cap:"市值约 9000亿日元", tech:"单片清洗/涂胶显影", d:"清洗设备全球龙头"},
+  ADT:{n:"爱德万 Advantest", m:"日股 · 6857", p:"34530 日元", c:+0.55, y:75.9, pe:null, cap:"市值约 2.5万亿日元", tech:"SoC/存储测试机（ATE）", d:"高端测试机双寡头之一，AI 芯片测试直接受益"},
+  DISCO:{n:"迪思科 DISCO", m:"日股 · 6146", p:"53850 日元", c:+1.26, y:11.8, pe:null, cap:"市值约 1.9万亿日元", tech:"晶圆减薄/划片/激光切割", d:"减薄划片设备全球霸主"},
+  TOK:{n:"东京应化 TOK", m:"日股 · 4186", p:"8331 日元", c:+2.51, y:43.5, pe:null, cap:"市值约 4300亿日元", tech:"光刻胶全系列（ArF/KrF/i 线）", d:"光刻胶双雄之一"},
+  NK:{n:"尼康 Nikon", m:"日股 · 7731", p:"1804 日元", c:null, y:3.4, pe:null, cap:"市值约 6400亿日元", tech:"ArF/i 线 DUV 光刻机", d:"DUV 光刻机双雄之一"},
+  CN:{n:"佳能 Canon", m:"日股 · 7751", p:"4817 日元", c:+0.96, y:null, pe:null, cap:"市值约 4.6万亿日元", tech:"i 线光刻/纳米压印", d:"DUV 光刻机玩家，押注纳米压印路线"},
+  JSR:{n:"JSR", m:"2024 年私有化退市", tech:"ArF/EUV 光刻胶", d:"高端光刻胶龙头，2024 年被日本产业革新投资机构 JIC 收购退市"},
+  /* 韩股（韩元） */
+  SKH:{n:"SK 海力士", m:"韩股 · 000660", p:"127.2万 韩元", c:+0.79, y:95.4, pe:null, cap:"市值约 929万亿韩元", tech:"HBM3E/DRAM（TSV/混合键合）", d:"HBM 全球领导者；10 月大幅回调约 28%"},
+  SAMS:{n:"三星电子", m:"韩股 · 005930", p:"21.55万 韩元", c:+2.62, y:79.7, pe:null, cap:"市值约 1260万亿韩元", tech:"HBM/DRAM/先进制程代工", d:"存储与代工巨头，HBM 追赶中；10 月回调约 20%"},
+  /* 港股与 A 股终端 */
+  DXH:{n:"地平线机器人", m:"港股 · 09660", p:"3.92 港元", c:+2.35, y:-54.7, pe:null, cap:"市值 625亿港元", tech:"智驾芯片（征程系列）与方案", d:"国产自动驾驶芯片第一股，量产上车规模领先"},
+  LCXX:{n:"浪潮信息", m:"A股 · 000977", p:"56.53 元", c:-0.93, y:-15.1, pe:18.2, cap:"市值 830亿元", tech:"AI 服务器整机与算力集群", d:"国产 AI 服务器龙头，承接昇腾/寒武纪整机方案"},
+  /* 终端国产（未上市） */
+  HW:{n:"华为海思", m:"未上市", tech:"麒麟 SoC / 昇腾 AI 芯片", d:"国产高端 SoC 代表，先进制程产能受制"},
+  ZXYX:{n:"紫光展锐", m:"未上市", tech:"手机 SoC / 基带（中低端）", d:"国产手机芯片主力，冲刺中高端"},
+  HZMDC:{n:"华为 MDC", m:"未上市", tech:"智驾计算平台（MDC 系列）", d:"国产高端智驾平台，与昇腾同源"},
+  GOOG:{n:"谷歌 TPU", m:"美股 · GOOGL（行情未收录）", tech:"自研 TPU 训练/推理集群", d:"全球 AI 集群自研芯片代表，自用为主"},
+  /* 本轮新增：AI 算力国产 + 纳米压印 */
+  SDY:{n:"燧原科技", m:"未上市（筹备 IPO）", tech:"AI 训练/推理芯片（云燧系列）", d:"国产 AI 训练芯片主力，腾讯投资背景，全栈软件栈"},
+  HG:{n:"海光信息", m:"A股 · 688041", p:"192.54 元", c:-0.66, y:-14.2, pe:142.4, cap:"市值 4475亿元", tech:"DCU（深算系列）/CPU（海光四号）", d:"国产 CPU+DCU 双线，AI 算力放量，10 月回调约 15%"},
+  SDVG:{n:"苏大维格", m:"A股 · 300331", p:"34.17 元", c:-1.33, y:5.6, pe:null, cap:"市值 89亿元", tech:"纳米压印光刻设备（NIL）与光学材料", d:"国产纳米压印光刻设备代表，探索图形化新路线"},
+  THW:{n:"天仁微纳", m:"未上市", tech:"纳米压印设备与工艺", d:"国产纳米压印设备厂商，主攻微纳结构量产"},
+  LDTY:{n:"朗道燧岩", m:"未上市", tech:"LPP-EUV 极紫外光源（13.5nm 锡等离子体，与 ASML 同路线）", d:"清华系 EUV 光源企业（王豪博士团队），2026 工博会首秀 FlintNano 样机国产化率 90%，距量产 3-5 年；获张江燧玥、沃衍资本、中芯聚源等投资"},
+  /* ===== 2026-10-17 行情补录：美股/日股/A股/港股（2026-10-16 收盘） ===== */
+  GOOG:{n:"谷歌（Alphabet）TPU", m:"美股 · GOOGL", p:"340.59 美元", c:-2.47, y:8.8, pe:17.06, cap:"市值 4.17万亿美元", tech:"自研 TPU 训练/推理集群", d:"全球 AI 集群自研芯片代表，自用为主"},
+  TER:{n:"泰瑞达 Teradyne", m:"美股 · TER", p:"325.00 美元", c:-5.31, y:67.9, pe:44.2, cap:"市值 508亿美元", tech:"SoC/模拟测试机", d:"高端测试机双寡头之一，AI 芯片测试需求拉动"},
+  ACLS:{n:"Axcelis 亚舍立", m:"美股 · ACLS", p:"108.35 美元", c:-5.87, y:34.9, pe:36.1, cap:"市值 33.5亿美元", tech:"高能离子注入机", d:"离子注入双寡头之一，先进制程注入设备主力"},
+  AMKR:{n:"安靠 Amkor", m:"美股 · AMKR", p:"41.82 美元", c:-5.06, y:5.9, pe:18.7, cap:"市值 104亿美元", tech:"先进封装/测试", d:"全球封测前三，先进封装扩产中"},
+  DOW:{n:"陶氏 Dow", m:"美股 · DOW", p:"29.93 美元", c:+0.91, y:null, pe:null, cap:"市值 216亿美元", tech:"CMP 抛光垫", d:"抛光垫全球龙头，半导体材料业务占比提升"},
+  ENTG:{n:"Entegris", m:"美股 · ENTG", p:"138.74 美元", c:-5.54, y:64.7, pe:69.4, cap:"市值 212亿美元", tech:"抛光液（原 Cabot）/过滤材料", d:"美国材料巨头，先进制程高纯过滤与抛光液"},
+  HON:{n:"霍尼韦尔", m:"美股 · HON", p:"211.41 美元", c:+0.43, y:8.4, pe:8.2, cap:"市值 670亿美元", tech:"高纯靶材", d:"美系靶材与材料供应商，业务多元"},
+  LIN:{n:"林德", m:"美股 · LIN", p:"498.43 美元", c:+1.06, y:null, pe:31.7, cap:"市值 2298亿美元", tech:"高纯电子特气", d:"全球气体巨头，半导体电子特气主力"},
+  ONTO:{n:"Onto Innovation", m:"美股 · ONTO", p:"220.70 美元", c:-4.85, y:null, pe:81.7, cap:"市值 108亿美元", tech:"晶圆缺陷检测/量测", d:"量检测三强之一，先进封装量测领先"},
+  PLAB:{n:"Photronics", m:"美股 · PLAB", p:"27.52 美元", c:-3.54, y:-14.0, pe:9.8, cap:"市值 16.2亿美元", tech:"掩膜版制造", d:"美国掩膜厂，商用掩膜全球主力"},
+  SUM:{n:"SUMCO", m:"日股 · 3436", p:"2703 日元", c:+1.90, y:88.4, pe:null, tech:"300mm/450mm 硅片", d:"全球第二大硅片厂；10 月回调约 18%"},
+  DNP:{n:"DNP 大日本印刷", m:"日股 · 7912", p:"2797.5 日元", c:+0.52, y:3.8, pe:null, tech:"先进掩膜版/护膜", d:"掩膜版双寡头之一"},
+  TOP:{n:"Toppan 凸版", m:"日股 · 7911", p:"2264.5 日元", c:+1.37, y:null, pe:null, tech:"先进掩膜版", d:"掩膜版双寡头之一；9 月底单日大跌疑似拆股，年内不可比"},
+  HOYA:{n:"HOYA", m:"日股 · 7741", p:"25650 日元", c:+2.79, y:8.3, pe:null, tech:"掩膜基板/护膜/EUV 空白掩膜", d:"EUV 空白掩膜重要供应商"},
+  FUJ:{n:"不二见 Fujimi", m:"日股 · 5384", p:"3320 日元", c:+2.00, y:null, pe:null, tech:"CMP 抛光液", d:"抛光液日系霸主（代码已更正为 5384）"},
+  TSN:{n:"大阳日酸", m:"日股 · 4091", p:"5458 日元", c:+0.78, y:16.9, pe:null, tech:"高纯电子特气", d:"日本气体巨头"},
+  SKW:{n:"Resonac 昭和电工", m:"日股 · 4004", p:"15040 日元", c:+0.10, y:130.5, pe:null, tech:"抛光液/电子材料", d:"日系材料综合厂，前身昭和电工"},
+  TJM:{n:"东京精密", m:"日股 · 7729", p:"18040 日元", c:+1.66, y:62.4, pe:null, tech:"划片机/量测", d:"日系减薄划片双雄之一"},
+  TOS:{n:"东曹 Tosoh", m:"日股 · 4042", p:"2616.5 日元", c:+1.65, y:11.2, pe:null, tech:"靶材/锆材", d:"日系靶材与材料厂商"},
+  MH:{n:"三菱化学", m:"日股 · 4188", p:"1162 日元", c:+1.97, y:27.0, pe:null, tech:"湿电子化学品", d:"日系湿化学品主力"},
+  KDH:{n:"关东电化", m:"日股 · 4047", p:"2149 日元", c:+1.42, y:94.5, pe:null, tech:"电子特气/超高纯试剂", d:"日系电子化学品厂商（原名条目更正）"},
+  TOG:{n:"通威股份", m:"A股 · 600438", p:"11.33 元", c:+2.07, y:-44.8, pe:null, cap:"市值 510亿元", tech:"西门子法多晶硅", d:"全球多晶硅产能龙头，光伏周期底部"},
+  DQ:{n:"大全能源", m:"A股 · 688303", p:"16.36 元", c:+1.43, y:-39.0, pe:null, cap:"市值 349亿元", tech:"多晶硅（流化床法）", d:"国内多晶硅主力"},
+  GCL:{n:"协鑫科技", m:"港股 · 03800", p:"0.655 港元", c:+0.77, y:-38.2, pe:null, cap:"市值 218亿港元", tech:"颗粒硅（流化床法）", d:"多晶硅新技术路线代表"},
+  JSC:{n:"晶盛机电", m:"A股 · 300316", p:"32.21 元", c:-2.86, y:-12.4, pe:88.2, cap:"市值 422亿元", tech:"拉晶炉/单晶生长设备", d:"全球主要单晶炉设备商"},
+  QY:{n:"清溢光电", m:"A股 · 688138", p:"28.34 元", c:-0.07, y:0.6, pe:41.8, cap:"市值 89亿元", tech:"掩膜版制造", d:"国产掩膜厂"},
+  LW:{n:"路维光电", m:"A股 · 688401", p:"52.60 元", c:+2.14, y:7.8, pe:37.2, cap:"市值 108亿元", tech:"掩膜版制造", d:"国产掩膜厂"},
+  WY:{n:"先导基电（原万业企业）", m:"A股 · 600641", p:"40.30 元", c:-0.71, y:128.5, pe:null, cap:"市值 382亿元", tech:"离子注入机（凯世通）", d:"国产离子注入代表，先导系入主后更名"},
+  HDQ:{n:"华海清科", m:"A股 · 688120", p:"247.88 元", c:+1.76, y:65.2, pe:107.8, cap:"市值 1230亿元", tech:"CMP 设备", d:"国产 CMP 设备龙头"},
+  CC:{n:"长川科技", m:"A股 · 300604", p:"214.43 元", c:-2.34, y:111.7, pe:74.5, cap:"市值 1392亿元", tech:"测试机/分选机", d:"国产测试设备代表"},
+  GLKJ:{n:"光力科技", m:"A股 · 300480", p:"26.94 元", c:-0.33, y:61.2, pe:111.7, cap:"市值 100亿元", tech:"划片机/精密磨削", d:"国产划片设备代表"},
+  HT:{n:"华特气体", m:"A股 · 688268", p:"107.31 元", c:-0.56, y:87.0, pe:91.2, cap:"市值 137亿元", tech:"特种气体", d:"国产电子特气代表"},
+  JH:{n:"金宏气体", m:"A股 · 688106", p:"21.73 元", c:-0.50, y:10.9, pe:99.1, cap:"市值 117亿元", tech:"大宗气体/电子气体", d:"国产气体厂商"},
+  JR:{n:"晶瑞电材", m:"A股 · 300655", p:"10.43 元", c:+0.10, y:-35.3, pe:91.3, cap:"市值 118亿元", tech:"湿电子化学品/光刻胶", d:"国产湿化学品代表"},
+  JHW:{n:"江化微", m:"A股 · 603078", p:"25.25 元", c:+0.36, y:41.5, pe:93.9, cap:"市值 97亿元", tech:"湿电子化学品", d:"国产湿化学品厂商"},
+  ND:{n:"南大光电", m:"A股 · 300346", p:"42.00 元", c:+0.45, y:-2.1, pe:78.9, cap:"市值 290亿元", tech:"ArF 光刻胶/前驱体", d:"国产光刻胶突破代表"},
+  TC:{n:"彤程新材", m:"A股 · 603650", p:"50.50 元", c:-0.45, y:14.4, pe:57.5, cap:"市值 333亿元", tech:"ArF 光刻胶（北京科华）", d:"国产光刻胶代表"},
+  YX:{n:"有研新材", m:"A股 · 600206", p:"37.51 元", c:-5.80, y:84.5, pe:112.3, cap:"市值 318亿元", tech:"靶材/高纯金属", d:"国产靶材厂商"}
+});
+
+/* ===== 环节对比映射：intl=国际供应商，dom=国产替代 ===== */
+var CMP = {
+  n1:{intl:["SIBELCO","TQC"], dom:["SY"]},
+  n2:{intl:[], dom:["TOG","DQ","GCL"]},
+  n3:{intl:[], dom:["JSC","ZH"]},
+  n4:{intl:["SHIN","SUM","GWC","SILT"], dom:["GS","ZH"]},
+  n5:{intl:["SNPS","CDNS","SIE"], dom:["HDJT","GL"]},
+  n6:{intl:["ARM","SNPS"], dom:["XL","PTG"]},
+  n7:{intl:["DNP","TOP","PHO","HOYA"], dom:["QY","LW"]},
+  n8:{intl:["TEL"], dom:["XYW"]},
+  n9:{intl:["ASML","NK","CN"], dom:["SMEE","LDTY","SDVG","THW"]},
+  n10:{intl:["LRCX","TEL","AMAT"], dom:["ZW","BFHC"]},
+  n11:{intl:["AMAT","LRCX","ASMI"], dom:["BFHC","TJ"]},
+  n12:{intl:["AMAT","ACLS"], dom:["WY"]},
+  n13:{intl:["SCREEN","LRCX"], dom:["SM"]},
+  n14:{intl:["AMAT","FUJ","DOW"], dom:["HDQ","AJ"]},
+  n15:{intl:["KLAC","AMAT","ONTO"], dom:["ZKFC"]},
+  n16:{intl:["ADT","TER"], dom:["HFC","CC"]},
+  n17:{intl:["DISCO","TJM"], dom:["GLKJ"]},
+  n18:{intl:["TSM","ASE","AMKR"], dom:["CD","TF"]},
+  n19:{intl:["ADT","TER"], dom:["HFC","CC"]},
+  n20:{intl:["SKH","SAMS","MU"], dom:["ZYCX","CXC"]},
+  n21:{intl:["NVDA"], dom:["HBL","ASCH","SDY","HG"]},
+  m1:{intl:["JSR","TOK","SHIN"], dom:["ND","TC"]},
+  m2:{intl:["LQ","LIN","TSN"], dom:["HT","JH"]},
+  m3:{intl:["FUJ","SKW","ENTG","DOW"], dom:["AJ"]},
+  m4:{intl:["JX","HON","TOS"], dom:["JF","YX"]},
+  m5:{intl:["BASF","MH","KDH"], dom:["JR","JHW"]},
+  n22:{intl:["AAPL","QCOM"], dom:["HW","ZXYX"]},
+  n23:{intl:["NVDA","GOOG"], dom:["LCXX","HBL"]},
+  n24:{intl:["NVDA","TSLA"], dom:["DXH","HZMDC"]}
+};
+
+/* ===== 技术路线对比（点击环节卡片时展示在七列下方；route:same=路线相同看进程，diff=路线分野） ===== */
+var ROUTE = {
+n1:{route:"same", intl:"国际以美国北卡 Spruce Pine 高品位石英矿为源，选矿+深度提纯（磁选/浮选/酸洗/高温焙烧），电子级石英砂碱金属（Li/Na/K）控制在几十 ppm，坩埚料低碱是关键", dom:"国产石英股份等走同样的提纯链（破碎→磁选→浮选→酸浸→焙烧），但自产脉石英矿杂质本底高，靠更多轮酸浸与高纯试剂弥补", same:"提纯工艺链一致——物理选矿+化学酸浸+高温焙烧，目标同为把 SiO₂ 提到 99.99% 以上并压低碱金属", diff:"差在矿源本底品位：Spruce Pine 矿碱金属本底极低、少酸浸即达标；国产矿需多轮酸浸提纯，成本更高且批次一致性更难控", pros:"国际：矿源先天优势带来产品一致性与产能稳定；国产：提纯工艺自主可控、中端料已替代、成本低", cons:"国产高端坩埚料在碱金属含量与一致性上仍有差距；国际矿源集中于单一矿区，供应风险高", stage:"同路线；国产中端替代完成、高端料验证中", mkt:"全球半导体级高纯石英砂市场规模约 4–5 亿美元，虽小但战略地位极高；美国北卡 Spruce Pine 矿区（Sibelco/TQC 主导）控制全球半导体级供应约 80%；国产石英股份等在中高端料替代提速，高端坩埚料仍以进口为主", ms:[{t:"1970s",tag:"intl",e:"北卡 Spruce Pine 高纯石英矿确立垄断",d:"美国北卡州矿脉凭借极低碱金属本底成为全球半导体级石英唯一主源，Sibelco、TQC 先后主导开采提纯。",i:"全球高端坩埚料供应被单一矿区卡死，矿源成为战略资源。",s:"美国地质调查局（USGS）",u:"https://www.usgs.gov"},{t:"2016",tag:"dom",e:"石英股份实现高纯石英砂提纯突破",d:"国产企业打通矿源评估+深度提纯（酸浸/焙烧）工艺，光伏级高纯石英砂大规模放量。",i:"光伏级石英砂基本自主，半导体级开始进入验证。",s:"石英股份年报",u:"https://www.cninfo.com.cn"},{t:"2020s",tag:"dom",e:"半导体级坩埚料中端替代完成",d:"国产高纯石英砂在 12 英寸拉晶坩埚中批量使用，高端料碱金属指标仍落后。",i:"中端自主、高端仍依赖进口，卡脖子等级为高。",s:"中国电子材料行业协会",u:"http://www.csia.net.cn"},{t:"2025",tag:"intl",e:"矿源集中度与地缘风险上升",d:"Spruce Pine 矿区仍控制全球半导体级供应约 80%，供应链单一化加剧。",i:"供应安全成为产业共识，推动各国石英砂战略储备。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"高品位矿源+深度提纯路线",i:"国际（Sibelco/TQC）以美国北卡 Spruce Pine 矿为本底（碱金属 Li/Na/K 低至几十 ppm），磁选/浮选/酸洗/高温焙烧提纯，坩埚料低碱是关键",d:"国产（石英股份）以自有脉石英矿为源（杂质本底偏高），靠更多轮酸浸+高纯试剂弥补，提纯工艺链相同",s:"工艺链一致：物理选矿+化学提纯+高温处理",f:"矿源本底品位差距：北卡矿碱金属本底极低，国产矿需更多轮次提纯、成本更高",ip:"矿源禀赋带来产品一致性与成本优势",dc:"矿源本底高，高端坩埚料碱金属指标与批次一致性仍落后",dp:"矿源多元化、供应链自主可控"}]},
+n2:{route:"same", intl:"国际以改良西门子法为主：三氯氢硅（SiHCl₃）在 1100℃ 硅芯上与氢气化学气相沉积（CVD）还原成棒状多晶硅，电子级纯度达 9–11N", dom:"国产通威/大全同样以改良西门子法为主，协鑫另开发流化床法（FBR）：硅烷在流化床内热分解连续产出颗粒硅，电耗更低", same:"主流都是改良西门子法——三氯氢硅+氢气 CVD 还原，化学原理与反应器逻辑一致", diff:"国产多一条流化床颗粒硅分支（连续化、低电耗），国际仍以棒状硅为主；电子级高纯料（B/P 与金属杂质）国际品质更稳", pros:"国产：产能规模全球第一、成本与电耗优势明显，基本自主；颗粒硅连续生产节能", cons:"颗粒硅氢含量与杂质分布控制难度高、电子级用途受限；国际电子级品质更稳但成本高", stage:"同路线（含分支）；光伏级国产全球主导，电子级高纯料追赶中", mkt:"全球多晶硅产能中国占约 90%（通威/协鑫/大全主导），光伏级基本自主且成本全球最低；电子级（半导体级）高纯料国产化率约 50%，部分仍依赖进口；受光伏周期影响价格波动大", ms:[{t:"2006",tag:"dom",e:"中国多晶硅产业起步",d:"在光伏需求拉动下，国内多晶硅产能从零开始扩张，硅烷法/改良西门子法并行。",i:"奠定全球第一产能基础。",s:"中国光伏行业协会",u:"https://www.chinapv.org.cn"},{t:"2015",tag:"dom",e:"通威/大全规模扩张，光伏级成本全球最低",d:"改良西门子法规模化+电力成本优势，中国光伏级多晶硅成本降至全球最低。",i:"光伏级基本自主且反超。",s:"CPIA",u:"https://www.chinapv.org.cn"},{t:"2020",tag:"dom",e:"协鑫流化床法（FBR）颗粒硅量产",d:"硅烷在流化床内热分解连续产出颗粒硅，电耗较棒状硅明显降低。",i:"开辟低电耗新分支，但氢含量/杂质控制难度高。",s:"协鑫科技公告",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"电子级（半导体级）高纯料国产化率约 50%",d:"电子级多晶硅在部分 12 英寸产线批量使用，B/P 与金属杂质稳定性仍与国际有差距。",i:"半导体硅料部分自主，高端仍依赖 Wacker/HDK。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"改良西门子法（棒状硅）",i:"国际（Wacker/HDK）：三氯氢硅 SiHCl₃ 在 1100℃ 硅芯上与氢气 CVD 还原，棒状多晶硅，电子级纯度达 9-11N",d:"国产（通威/大全）：同改良西门子法，规模化+电价优势使光伏级成本全球最低，电子级纯度追赶中",s:"同一三氯氢硅+氢气 CVD 还原原理与反应器逻辑",f:"电子级高纯料：B/P 与金属杂质控制、批次稳定性国际更优",ip:"电子级品质更稳、认证壁垒深厚",dc:"电子级高纯料份额仍低",dp:"产能规模全球第一、成本与电耗优势明显"},{n:"流化床法（FBR）颗粒硅",i:"国际（REC/埃肯曾主推）：硅烷在流化床内热分解连续产出颗粒硅，早期因品质问题放缓",d:"国产（协鑫）：自主 FBR 颗粒硅量产，电耗更低、连续化生产",s:"都是流化床+硅烷热分解原理",f:"颗粒硅氢含量与杂质分布控制难，国际早期产品也因品质问题放缓推广",ip:"颗粒硅纯度稳定性验证更早",dc:"氢含量控制难度高、电子级用途受限",dp:"电耗较棒状硅降低约 30%、连续生产降本"}]},
+n3:{route:"same", intl:"国际与国产均为 Cz 直拉法：多晶料在氩气保护下 1400℃ 以上熔融，籽晶提拉+晶体/坩埚反向旋转，外加磁场（MCZ）抑制热对流与氧杂质，生长单晶硅棒", dom:"国产隆基/中环工艺与晶盛机电拉晶炉已是全球主要供应商，热场设计、提拉-转速-温度控制逻辑与国际一致", same:"都是 Cz 直拉+MCZ 磁场拉晶，生长控制逻辑（提拉速度/转速/温度梯度）一致", diff:"无实质技术代差；差异主要在 450mm 超大尺寸前瞻、自动拉晶软件与热场仿真数据库的积累厚度", pros:"国产：设备+工艺+产能全球第一梯队、成本低；国际：长期工艺数据库更厚", cons:"双方都在攻关 450mm 超大尺寸，国产前瞻布局略晚", stage:"同路线且进程同步，属基本自主环节", mkt:"晶盛机电全球单晶炉市占约 60–70%，隆基/中环工艺全球领先；本环节属基本自主，市场格局由国产主导", ms:[{t:"2010s",tag:"dom",e:"隆基单晶革命",d:"金刚线切割+单晶 PERC 电池推动单晶替代多晶，中国单晶硅片产能全球第一。",i:"光伏单晶完全自主。",s:"隆基绿能年报",u:"https://www.longi.com"},{t:"2020",tag:"dom",e:"中环/晶盛机电 12 英寸半导体硅片量产",d:"半导体级单晶拉制与 12 英寸硅片产线建成，进入主流代工验证。",i:"半导体单晶国产化率提升，卡脖子等级中高。",s:"中环股份公告",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"intl",e:"信越/SUMCO 仍主导半导体单晶",d:"全球半导体单晶硅片前六家合计约 80%，日系品质与认证壁垒深厚。",i:"高端单晶仍依赖进口。",s:"SEMI",u:"https://www.semi.org"}], routes:[{n:"直拉法（CZ/MCZ）单晶路线",i:"国际（信越/SUMCO）：CZ 直拉+磁场（MCZ），半导体级氧/碳/金属杂质控制成熟，300mm 主流",d:"国产（中环/晶盛机电/沪硅产业）：同 CZ/MCZ 路线，12 英寸产线建成，品质接近",s:"都是 CZ/MCZ 直拉法生长单晶",f:"半导体级杂质控制（氧、金属）、设备一致性与量产良率",ip:"工艺窗口与数十年量产经验",dc:"半导体级高端硅片份额仍低",dp:"光伏级全球主导，半导体级快速追赶"}]},
+n4:{route:"same", intl:"国际（信越/SUMCO/环球晶圆/Siltronic）流程：线锯切片→倒角→双面研磨→CMP 抛光→清洗→外延（EPI）→检测，控制纳米级平整度与表面金属<1E10 atoms/cm²、无晶体原生缺陷（COP）", dom:"国产沪硅产业/中环领先走同一流程（设备+工艺国产化），但先进节点（5nm 以下）用片的缺陷密度、平整度、表面金属污染与日系仍有差距，认证周期长", same:"制造流程一致——切片→研磨→抛光→清洗→外延→检测，工艺逻辑相同", diff:"差在工艺良率口径：晶体原生缺陷（COP）密度、纳米级平坦度（GPA<0.1nm）、表面金属污染（<1E10）与批次一致性", pros:"国际：良率与一致性成熟、已通过先进节点认证；国产：产能爬坡快、性价比、本土供应", cons:"国产先进节点认证尚未规模通过", stage:"同路线；国产产能爬坡+先进验证中，整体落后约 5–8 年", mkt:"全球硅片市场约 120–130 亿美元/年；2025 年信越 26.3%、SUMCO 17.8%、环球晶圆 15%、Siltronic 12%、SK Siltron 11%，前六大约 80%，国产 12 英寸份额约 10%；2026 年起硅片进入涨价周期，利好国产替代窗口", ms:[{t:"1990s",tag:"intl",e:"300mm 晶圆标准确立",d:"半导体行业从 200mm 转向 300mm，信越、SUMCO 领跑大尺寸硅片制造。",i:"晶圆尺寸换代，大硅片成为卡口。",s:"SEMI 标准",u:"https://www.semi.org"},{t:"2017",tag:"dom",e:"沪硅产业/中环 12 英寸产线投产",d:"国产 300mm 大硅片从零起步，逐步进入认证与爬坡。",i:"12 英寸国产化率约 10%。",s:"沪硅产业年报",u:"https://www.cninfo.com.cn"},{t:"2023",tag:"dom",e:"300mm 月产能爬坡提速",d:"沪硅产业、中环、立昂微扩产，供应国内代工与存储产线。",i:"缓解大硅片卡脖子，先进节点仍以进口为主。",s:"公司公告",u:"https://www.cninfo.com.cn"}], routes:[{n:"300mm 大硅片制造路线",i:"国际（信越/SUMCO/环球晶圆/Siltronic/SK Siltron）：切磨抛+外延/退火，前六家合计约 80%",d:"国产（沪硅产业/中环/立昂微）：同切磨抛路线，月产能爬坡提速",s:"切、磨、抛+抛光液工艺路线一致",f:"晶体缺陷（COP）、平整度、外延层均匀性、认证周期",ip:"产品规格认证与先进节点配套",dc:"先进节点硅片份额仍低",dp:"产能扩张快、本土配套及时"}]},
+n5:{route:"same", intl:"国际（新思/楷登/西门子）全流程工具链：RTL 综合→物理综合→布局布线→时序/功耗/信号完整性签核→DFT/DFM，并与晶圆厂 PDK（工艺设计套件）深度绑定，先进节点设计必须用其工具签核", dom:"国产华大九天（模拟/平板显示全流程、数字点工具）、概伦（器件建模与 PDK）、芯华章（验证）从点工具起步拼全流程，数字后端布局布线与先进节点签核仍是短板", same:"算法基础一致：综合（逻辑优化）、布局布线（图论/启发式搜索）、静态时序分析（STA）、SPICE 仿真", diff:"国际是“全流程+先进节点 PDK 协同+多工具数据互通”；国产以点工具为主+成熟工艺 PDK，先进节点（3nm）工艺模型缺失导致工具无法签核", pros:"国际：生态锁定、先进节点唯一可用；国产：自主可控、成熟工艺性价比、服务响应快", cons:"国产数字后端、先进签核与工艺协同差距大", stage:"同路线；国产成熟工艺全流程拼齐中，先进节点追赶 1–2 代", mkt:"全球 EDA 支出约 210–220 亿美元/年；Synopsys 约 32–41%、Cadence 约 29–33%、Siemens 约 11–15%，三巨头合计 74–90%；国产华大九天/概伦/广立微合计国内份额约 10–15%，先进节点工具仍是空白", ms:[{t:"1986",tag:"intl",e:"Cadence 成立",d:"EDA 巨头 Cadence 创立，主攻版图与验证工具，与后来者 Synopsys 形成双雄。",i:"美系 EDA 格局奠基。",s:"公司官网",u:"https://www.cninfo.com.cn"},{t:"1988",tag:"intl",e:"Synopsys 成立，首创逻辑综合",d:"Synopsys 以逻辑综合工具切入，后扩至全流程，成为 EDA 第一。",i:"三巨头（Synopsys/Cadence/Siemens）格局固化。",s:"公司官网",u:"https://www.cninfo.com.cn"},{t:"2009",tag:"dom",e:"华大九天成立",d:"由华大集团 IC 设计工具团队孵化，主攻模拟/数字全流程 EDA。",i:"国产 EDA 从零起步。",s:"华大九天招股书",u:"https://www.cninfo.com.cn"},{t:"2022",tag:"intl",e:"美国对华 EDA 出口管制",d:"美国将 GAA 相关 EDA 工具列入对华管制，限制先进制程设计能力。",i:"EDA 卡脖子升级为出口管制级。",s:"美国商务部 BIS",u:"https://www.bis.doc.gov"},{t:"2023-2025",tag:"dom",e:"国产 EDA 上市与全流程补齐",d:"华大九天、概伦电子上市，国产工具在数字前端/模拟/存储环节取得突破，但先进工艺全流程仍缺。",i:"国产 EDA 市占率约 10-15%，替代提速。",s:"公司年报",u:"https://www.cninfo.com.cn"}], routes:[{n:"数字前端（综合/时序）",i:"国际（Synopsys）：逻辑综合+静态时序分析（STA）垄断，先进节点签核工具是标配",d:"国产（华大九天/芯华章）：数字综合与时序工具可用，先进工艺库支持不足",s:"综合+STA 流程一致",f:"先进节点工艺库模型、时序收敛精度、大规模设计性能",ip:"与晶圆厂先进 PDK 深度绑定",dc:"先进节点签核仍依赖国际",dp:"自主可控、本土支持及时"},{n:"模拟/混合信号设计",i:"国际（Cadence/Synopsys）：模拟仿真（SPICE）+版图验证成熟",d:"国产（华大九天）：模拟全流程较强，国内模拟设计已规模使用",s:"SPICE 仿真+版图编辑流程一致",f:"先进工艺模型精度、射频/高速仿真能力",ip:"模型与 IP 生态完整",dc:"射频/高速仿真偏弱",dp:"模拟 EDA 已实现规模替代"},{n:"物理验证/DFT",i:"国际（Siemens EDA/Synopsys）：DRC/LVS/DFT 工具链完整",d:"国产（概伦电子/芯华章）：物理验证与可测性设计工具起步",s:"DRC/LVS 规则检查流程一致",f:"规则集覆盖、版图验证吞吐",ip:"大规模芯片验证效率",dc:"先进工艺规则集支持不足"}]},
+n6:{route:"diff", intl:"国际以 Arm 为事实标准：RISC 精简指令集架构（ARMv9），商业授权模式（IP 核+架构授权），配套编译器/调试器/SoC 生态成熟；Synopsys 等提供 SerDes/接口 IP", dom:"国产走 RISC-V 开源指令集架构：免授权费、可自定义扩展指令（领域定制），芯来/平头哥玄铁做高性能核，华为自研核", same:"都是 RISC 加载-存储型精简指令集理念，微架构（流水线/乱序执行/缓存层次）设计原理相同", diff:"指令集产权模式分野：Arm 闭源商业授权 vs RISC-V 开源免授权可扩展；生态成熟度（软件/工具链/编译器优化）差距大", pros:"国产：RISC-V 免授权、可扩展定制指令、无断供风险，自主可控；Arm：生态成熟、性能验证充分、即插即用", cons:"国产 RISC-V 高性能核（乱序、多核一致性）与软件生态仍在建设", stage:"路线分野；国产以开源架构另起炉灶，高性能核追赶中", mkt:"Arm 在手机/嵌入式 CPU IP 市占约 90%，生态事实标准；RISC-V 出货量已超百亿核、高速增长，但高性能核与软件生态仍在建设；国产自研核（华为/玄铁）在服务器与手机端份额仍低", ms:[{t:"1991",tag:"intl",e:"ARM 成立，开创 IP 授权模式",d:"ARM 以 RISC 架构授权模式成为全球移动芯片 IP 基石。",i:"全球手机 SoC 深度依赖 ARM 指令集授权。",s:"ARM 官网",u:"https://www.arm.com"},{t:"2019",tag:"dom",e:"平头哥发布玄铁系列 RISC-V 处理器",d:"阿里巴巴平头哥推出基于 RISC-V 的玄铁 CPU，RISC-V 生态在国产侧落地。",i:"开辟指令集自主新路线。",s:"平头哥发布会",u:"https://www.t-head.cn"},{t:"2020s",tag:"dom",e:"芯原股份等 IP 企业放量",d:"国产接口/GPU/AI IP 授权业务增长，但高端 CPU/GPU IP 仍依赖海外。",i:"IP 卡脖子由架构延伸到高端 IP 核。",s:"芯原年报",u:"https://www.cninfo.com.cn"},{t:"2023",tag:"intl",e:"ARM 上市，授权风险受关注",d:"ARM 在纳斯达克 IPO，其指令集授权与先进 IP 供应的地缘风险被反复讨论。",i:"架构授权成为中国半导体核心风险点之一。",s:"ARM IPO 文件",u:"https://www.arm.com"}], routes:[{n:"ARM 授权架构路线",i:"国际（ARM）：ARM 架构授权（v9）+ 高端 CPU IP（Cortex-X/A），全球手机 SoC 依赖",d:"国产（华为/飞腾）：获 ARM v8 永久授权自研 CPU，新架构授权受限",s:"同为 ARM 指令集体系",f:"最新架构授权受限、自研微架构迭代依赖生态",ip:"指令集生态与演进主导权",dc:"最新 ARM 架构拿不到，性能代差",dp:"永久授权下自研空间"},{n:"RISC-V 开放指令集路线",i:"国际（SiFive/Andes）：RISC-V 开放指令集 IP 供应商",d:"国产（平头哥玄铁/芯来科技）：基于 RISC-V 自研 CPU IP，指令集自主",s:"同用 RISC-V 开放指令集",f:"高性能乱序核心、工具链与软件生态成熟度",ip:"生态与性能验证更早",dc:"高性能 RISC-V 核心与软件栈仍在追赶",dp:"指令集自主可控"}]},
+n7:{route:"same", intl:"国际（DNP/Toppan/Photronics/HOYA）制程：光刻胶涂布→电子束直写（EBL）写入版图→显影→刻蚀 Cr 吸收层→缺陷检查与修复；EUV 掩膜需 Mo/Si 多层反射膜（40–50 对）+低热膨胀基板+护膜 pellicle", dom:"国产清溢/路维走同一制程链，成熟节点（KrF/ArF）量产；EUV 反射式多层膜、先进节点缺陷修复与护膜工艺空白", same:"制程链一致——EBL 电子束写入→显影→Cr/MoSi 刻蚀→缺陷检查修复", diff:"差在先进节点掩膜精度：EUV 多层膜沉积精度（亚纳米）、电子束修复（EBD）能力、护膜透光率", pros:"国际：EUV 掩膜全球垄断、工艺库完整；国产：成熟节点本土配套、响应快", cons:"国产先进掩膜与护膜依赖进口", stage:"同路线；国产成熟节点量产、先进节点在研，代差明显", mkt:"全球光掩膜市场约 50 亿美元/年；DNP/Toppan/Photronics/HOYA 合计约 80%+；国产清溢/路维集中在成熟节点，先进掩膜与护膜几乎全部进口", ms:[{t:"1990s",tag:"intl",e:"DNP/Toppan 光罩制造垄断成型",d:"日本 DNP、Toppan 与 Photronics 合计主导全球掩膜版制造，先进光罩高度集中。",i:"光罩制造成为日本供应链卡口。",s:"SEMI",u:"https://www.semi.org"},{t:"2018",tag:"dom",e:"清溢光电/路维光电高精度掩膜版突破",d:"国产掩膜版在中低端显示与半导体光罩放量，承接国产化需求。",i:"中低端光罩自主，先进制程光罩仍依赖进口。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"先进制程光罩仍依赖进口",d:"EUV 级/先进 DUV 光罩（含 OPC 处理）主要由日本厂商供应。",i:"掩膜版保持中高风险。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"成熟制程光罩",i:"国际（DNP/Toppan/Photronics）：多光束写入+OPC，成熟制程光罩量产",d:"国产（清溢光电/路维光电）：高精度掩膜版放量，承接国产成熟制程",s:"激光/电子束写入+显影蚀刻工艺",f:"图形精度（CD 均匀性）、缺陷密度",ip:"良率与精度控制成熟",dc:"先进节点光罩做不了",dp:"中低端替代、交期快"},{n:"先进制程光罩（含 EUV 光罩）",i:"国际（DNP/Toppan）：EUV 光罩（低热膨胀基板+多层膜）与先进 OPC 垄断",d:"国产：EUV 光罩基板与制造处于研发，尚未进入量产",s:"同为光罩制造+OPC 流程",f:"EUV 光罩基板材料、相位缺陷控制",ip:"先进光罩全链能力",dc:"EUV 光罩完全依赖进口"}]},
+n8:{route:"same", intl:"国际（TEL）Track 一体化机台：旋涂光刻胶→热板前烘（PAB）→曝光后烘（PEB）→显影液 puddle 显影，与光刻机联机自动传片；核心是膜厚均匀性<1%、温控±0.1℃、边缘去边与显影轮廓控制", dom:"国产芯源微同 Track 架构（旋涂+烘烤+显影模块），膜厚均匀性与温控精度达成熟节点水平，先进节点（EUV 胶）联机验证刚起步", same:"都是涂胶-烘烤-显影一体化 Track，与光刻机联机自动传片", diff:"差在工艺窗口：膜厚均匀性、边缘去边控制、PEB 温控均匀性、以及与光刻机曝光参数的联机匹配数据", pros:"国际：工艺数据库+联机验证充分；国产：性价比、本土服务、自主可控", cons:"国产先进节点联机验证不足、份额极低", stage:"同路线；国产 28nm 级验证推进，落后约一代", mkt:"全球涂胶显影设备市场约 50–60 亿美元/年；TEL 全球约 91% 垄断；国产芯源微国内份额仍为个位数，28nm 级联机验证推进中", ms:[{t:"1980s",tag:"intl",e:"TEL 涂胶显影设备垄断",d:"东京电子（TEL）涂胶显影（Track）设备长期占据全球约 90% 份额。",i:"前道光刻配套环节被日系卡住。",s:"公司财报",u:"https://www.cninfo.com.cn"},{t:"2021",tag:"dom",e:"芯源微前道 Track 验证突破",d:"芯源微前道涂胶显影进入主流产线验证，此前仅后道封装用设备。",i:"国产化率约 6-10% 并爬升。",s:"芯源微公告",u:"https://www.kingsemi.com"},{t:"2025",tag:"dom",e:"前道 Track 批量导入",d:"国产 track 在成熟制程产线批量使用，先进节点仍验证中。",i:"卡脖子等级仍为高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"前道涂胶显影（Track）路线",i:"国际（TEL/DNS）：前道 track 与光刻机联机（track-litho 联动），全球约 90%+",d:"国产（芯源微）：前道 track 进入主流产线验证，成熟制程批量使用",s:"都是涂胶-烘烤-显影工艺链",f:"与光刻机的联机精度、工艺稳定性、先进节点配套",ip:"光刻配套联机生态",dc:"先进节点 track 未验证",dp:"中低端已放量"}]},
+n9:{route:"same", intl:"国际 ASML EUV 技术路线：LPP 激光等离子体光源（CO₂ 激光轰击锡滴→13.5nm 极紫外光）→Mo/Si 多层膜反射光学系统→光罩台/工件台同步扫描；Nikon/Canon 守 DUV（ArF 193nm 浸没式，水浸透镜提高数值孔径）；Canon 另推 NIL 纳米压印", dom:"国产上海微电子做 DUV 整机（90nm 级）；朗道燧岩做 LPP-EUV 光源（与 ASML 同路线，2026 年样机）；苏大维格/天仁微纳做 NIL 纳米压印（模板直接压印，绕开光源功率瓶颈）", same:"主流 EUV 路线一致——都是 LPP 锡等离子体光源（朗道燧岩与 ASML 同路线）；NIL 分支国际佳能 vs 国产苏大维格也同源", diff:"整机层面差在：光源功率（量产 kW 级 vs 样机）、反射镜面形精度（亚埃级）、工件台同步精度（nm 级套刻）、量测-光刻闭环", pros:"国际：EUV 全链条集成与量产验证成熟；国产：光源单点突破，NIL 无波长限制、成本潜力大", cons:"国产 EUV 整机差距以十年计；NIL 存在模板寿命与缺陷复制问题", stage:"同路线（LPP）；国际量产 3nm/5nm，国产 2026 公开光源样机、处于单点突破→系统集成早期阶段", mkt:"全球光刻机市场约 250 亿美元/年；ASML 2025 年全球份额约 82–95%（EUV 100% 垄断），全年净销售 327 亿欧元、EUV 确认收入 116 亿欧元（48 台）；Nikon/Canon 主攻 DUV 中低端；国产 SMEE 覆盖 90nm 级，朗道燧岩光源样机 2026 年公开", ms:[{t:"1986",tag:"intl",e:"ASML 成立",d:"飞利浦光刻部门与 ASM 合资成立 ASML，早期靠 PAS 系列 DUV 站稳脚跟。",i:"光刻霸主起点。",s:"ASML 官网",u:"https://www.asml.com"},{t:"2013",tag:"intl",e:"ASML 收购 Cymer 掌控 EUV 光源",d:"收购美国光源厂商 Cymer，锁定 LPP（激光等离子体）EUV 光源路线。",i:"EUV 全链条自给，形成独家垄断。",s:"ASML 年报",u:"https://www.asml.com"},{t:"2018",tag:"intl",e:"首台 EUV 量产机交付",d:"NXE:3400B 交付台积电/三星，7nm 以下制程开始依赖 EUV。",i:"先进制程被 EUV 单点卡死。",s:"ASML 财报",u:"https://www.asml.com"},{t:"2021",tag:"dom",e:"上海微电子 90nm DUV 光刻机交付",d:"SMEE 首台国产前道光刻机交付，28nm 浸没式 DUV 在研。",i:"国产光刻从 0 到 1，先进节点差距仍大。",s:"上海微电子",u:"http://www.smee.com.cn"},{t:"2020s",tag:"dom",e:"纳米压印（NIL）等非光刻路线在研",d:"苏大维格、天仁微纳推进纳米压印光刻，探索绕开 EUV 光源的新路径。",i:"多路线并行降低对 EUV 的单一依赖。",s:"公司公告",u:"https://www.cninfo.com.cn"},{t:"2026-10",tag:"dom",e:"朗道燧岩 LPP-EUV 光源样机首秀",d:"清华系朗道燧岩在工博会展示 13.5nm 锡等离子体 LPP-EUV 光源样机，国产化率约 90%。",i:"填补 EUV 光源空白，距量产仍需 3-5 年。",s:"工博会现场/公司发布",u:"https://www.ciif-expo.com"},{t:"2026-10",tag:"intl",e:"欧盟首提“一换一”制裁互撤，涉 ASML 供应商",d:"中方 7 月将德国辛德豪瑟材料（ASML 供应商、依赖中国稀土）列入出口管制；欧盟 10 月谈判拟以解除对一家中企限制换取其移出名单（彭博 10-14 报道）。",i:"EUV 供应链卷入稀土反制博弈，ASML 供应商链承压。",s:"凤凰网（引彭博社）",u:"http://feng.ifeng.com/c/8xFPU1ONuk3",n:true}], routes:[{n:"EUV 极紫外光刻（LPP）",i:"国际（ASML）：LPP 激光等离子体光源（CO₂ 轰击锡靶→13.5nm）+Mo/Si 多层膜+双工件台，EUV 100% 垄断",d:"国产（朗道燧岩）：同 LPP 路线 13.5nm 光源样机（国产化率约 90%），整机与量产未完成",s:"LPP 锡等离子体光源原理一致",f:"光源功率（量产 kW 级 vs 样机）、反射镜面形（亚埃级）、工件台同步、整机集成",ip:"全链条量产验证",dc:"整机集成与量产以十年计",dp:"光源单点突破、路线同源降低追赶难度"},{n:"DUV 深紫外光刻（ArF 浸没）",i:"国际（Nikon/Canon）：ArF 193nm 浸没式 DUV，40-28nm 主力",d:"国产（上海微电子）：90nm DUV 已交付，28nm 浸没式在研",s:"ArF 浸没式光刻原理",f:"套刻精度、产率、镜头系统",ip:"成熟量产与精度",dc:"28nm 浸没式未交付",dp:"已打通整机能力"},{n:"纳米压印光刻（NIL）",i:"国际（Canon）：NIL 压印光刻（模板复制图形），佳能已进入存储应用",d:"国产（苏大维格/天仁微纳）：NIL 在研，避开 EUV 光源功率瓶颈",s:"都是模板接触式压印",f:"模板制作寿命、缺陷复制、套刻精度",ip:"模板工艺成熟度",dc:"模板寿命与缺陷控制",dp:"绕开 EUV 光源、成本潜力大"}]},
+n10:{route:"same", intl:"国际（Lam/TEL/AMAT）等离子体刻蚀：刻蚀气体（CF₄/SF₆/Cl₂）在射频电场下电离成等离子体，离子物理轰击+自由基化学反应协同，各向异性去除材料；CCP 电容耦合（离子能量高，适合硬掩膜/深沟槽），ICP 电感耦合（等离子体密度高，适合精细图形）；先进节点用 ALE 原子层刻蚀（自限性反应，原子级精度）", dom:"国产中微公司（CCP 介质刻蚀已进 5nm 产线）、北方华创（ICP 导体刻蚀）走同一等离子体路线，先进节点关键尺寸控制与 ALE 验证推进中", same:"都是射频等离子体刻蚀，物理轰击+化学反应的各向异性去除机制相同，CCP/ICP 技术同源", diff:"差在等离子体参数控制精度（离子能量/密度解耦、腔室均匀性）、ALE 自限性工艺库、刻蚀终点检测灵敏度", pros:"国际：原子级 ALE 与先进节点工艺库领先；国产：成熟节点覆盖广、性价比、迭代快", cons:"国产 ALE 与 3nm 级验证中", stage:"同路线；中微 5nm 通过验证，差距约一代", mkt:"全球刻蚀设备市场约 180–200 亿美元/年；2025 年 Lam 约 47–52%、TEL 约 22%、AMAT 约 14–17%，三巨头合计约 85–88%；中微/北方华创合计全球份额约 5%，国内先进节点验证推进，国产化率约 31%", ms:[{t:"1980",tag:"intl",e:"Lam Research 成立",d:"Lam 专注等离子体刻蚀，与 TEL、AMAT 形成刻蚀三巨头。",i:"刻蚀设备格局确立。",s:"Lam 官网",u:"https://www.lamresearch.com"},{t:"2010s",tag:"dom",e:"中微公司 5nm 介质刻蚀进台积电产线",d:"中微介质刻蚀机进入台积电先进节点验证并量产，国产刻蚀破冰。",i:"国产刻蚀实现高端突破。",s:"中微公司年报",u:"https://www.amec-inc.com"},{t:"2019",tag:"dom",e:"北方华创刻蚀放量",d:"北方华创 ICP 刻蚀在国内产线批量应用，与中微形成互补。",i:"国产刻蚀市占率提升至约 5%。",s:"北方华创年报",u:"https://www.naura.com"},{t:"2025",tag:"intl",e:"三巨头仍垄断约 85%+",d:"Lam（约 47-52%）+TEL（约 22%）+AMAT（约 14-17%）主导高端刻蚀。",i:"高端刻蚀仍高度依赖进口。",s:"Yole",u:"https://www.yolegroup.com"}], routes:[{n:"CCP 介质刻蚀路线",i:"国际（Lam/TEL）：CCP 高密度等离子体刻蚀介质层（低k 介质），先进节点主导",d:"国产（中微公司）：CCP 介质刻蚀进入台积电 5nm 产线，高端突破",s:"CCP 等离子体刻蚀原理",f:"极低温刻蚀、高深宽比控制、工艺窗口",ip:"先进节点量产验证",dc:"超高深宽比（如 3D NAND）场景仍在追赶",dp:"已进国际先进产线"},{n:"ICP 硅/金属刻蚀路线",i:"国际（Lam/TEL/AMAT）：ICP 刻蚀多晶硅/金属栅，3D 结构主力",d:"国产（北方华创）：ICP 硅刻蚀在国内产线批量，先进节点验证",s:"ICP 等离子体刻蚀原理",f:"刻蚀均匀性、选择比、原子层精度",ip:"先进节点工艺库",dc:"先进节点份额仍低"}]},
+n11:{route:"same", intl:"国际（AMAT/Lam/TEL/ASM）薄膜沉积体系：CVD 化学气相沉积（PECVD 等离子体增强成膜）、PVD 物理溅射、ALD 原子层沉积（前驱体交替自限性吸附，原子级厚度控制，用于高 k 栅介质/阻挡层）", dom:"国产北方华创（PECVD/氧化扩散炉）、拓荆科技（PECVD/ALD）走同一体系，PECVD 已放量，高端 ALD（前驱体匹配、膜应力控制）追赶中", same:"沉积体系一致：CVD/PVD/ALD 三大类，成膜原理相同", diff:"差在 ALD 原子层自限性控制（前驱体纯度、脉冲时间、温度窗口）、薄膜应力与杂质（C/H/O 含量）调控", pros:"国际：ALD 与先进节点薄膜工艺库领先；国产：PECVD 性价比、整线覆盖快", cons:"国产高端 ALD 与前驱体仍有差距", stage:"同路线；国产覆盖率快速提升，ALD 追赶中", mkt:"全球薄膜沉积设备市场约 200–230 亿美元/年；AMAT 约 20–32%、Lam 约 15–18%、TEL 约 14%、ASM 约 4–5%，前三约 55%；中国沉积市场 2025 年约 672 亿元（+27.8%）；北方华创/拓荆国内份额快速提升，国产化率约 27%", ms:[{t:"1980s",tag:"intl",e:"AMAT 确立沉积设备霸主",d:"应用材料（AMAT）在 PVD/CVD 领域建立统治地位，与 Lam/TEL/ASM 分占市场。",i:"薄膜沉积设备格局固化。",s:"AMAT 财报",u:"https://www.appliedmaterials.com"},{t:"2010s",tag:"dom",e:"北方华创/拓荆科技突破 ALD/PECVD",d:"国产 ALD、PECVD 进入主流产线，先进节点部分导入。",i:"沉积国产化率约 27%。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"高端沉积设备验证提速",d:"先进节点 ALD 与高深宽比沉积仍依赖进口，国产在成熟制程放量。",i:"卡脖子等级中高。",s:"行业研报",u:"https://www.semi.org"},{t:"2026-10",tag:"dom",e:"微导纳米发布 PVD 磁控溅射设备",d:"湾芯展推出 iMagtron 系列 PVD 磁控溅射及钌原子层沉积设备，整机国产化率 95.6%，目标 2027 年实现 100% 国产化。",i:"国产薄膜沉积补上 PVD 支线，设备国产化再进一步。",s:"经济参考报（新华社）",u:"http://jjckb.xinhuanet.com/20261014/532c12fd85bc4890871b4f3cb6fe32c6/c.html",n:true}], routes:[{n:"PVD 物理气相沉积",i:"国际（AMAT）：溅射沉积金属膜，AMAT 主导",d:"国产（北方华创/拓荆）：PVD 在成熟制程放量",s:"溅射沉积原理",f:"膜厚均匀性、台阶覆盖、先进互连工艺",ip:"先进互连 PVD 工艺",dc:"先进节点验证中"},{n:"CVD 化学气相沉积",i:"国际（AMAT/Lam/TEL）：LPCVD/PECVD 介质与金属膜，三巨头主导",d:"国产（拓荆/北方华创）：PECVD 进入主流产线",s:"化学气相沉积原理",f:"薄膜应力、均匀性、前驱体配方",ip:"前驱体与工艺成熟度",dc:"高端前驱体与先进节点工艺仍依赖进口"},{n:"ALD 原子层沉积",i:"国际（ASM/AMAT/TEL）：原子层沉积，高k 栅介质与先进节点关键膜层",d:"国产（拓荆科技）：ALD 在成熟与部分先进节点导入",s:"原子层逐层生长原理",f:"前驱体纯度、循环速率、保形性",ip:"先进节点量产验证",dc:"高端 ALD 前驱体依赖进口"}]},
+n12:{route:"same", intl:"国际（AMAT/Axcelis）束流离子注入：掺杂元素（B/P/As）电离成离子束→质量分析选种→加速（能量定注入深度）→扫描（剂量均匀性）→注入晶圆；分大束流（高剂量低能，源漏）、中束流、高能（>200keV，深阱隔离）", dom:"国产万业企业（凯世通，低能大束流）、中科信走同一束流路线，低能机型放量，高能机型与剂量均匀性验证中", same:"都是“电离-质量分离-加速-扫描注入”的束流路线", diff:"差在束流强度与产能（大束流剂量<1E16 cm⁻² 的吞吐）、能量范围（高能>200keV）、剂量均匀性（<0.5%）、低能超浅结（<1keV）控制", pros:"国际：全机型覆盖、工艺库完整；国产：低能机型自主、性价比", cons:"国产高能/超低能机型验证中", stage:"同路线；国产化率低，高能机型追赶中", mkt:"全球离子注入设备市场约 20–30 亿美元/年；AMAT+Axcelis 合计约 90%；国产凯世通/中科信低能机型放量、份额仍低，高能机型验证中", ms:[{t:"2011",tag:"intl",e:"AMAT 收购 Varian 巩固离子注入",d:"应用材料收购离子注入龙头 Varian（现 Axcelis 同源），与 Axcelis 形成双寡头。",i:"离子注入设备高度集中。",s:"AMAT 公告",u:"https://www.appliedmaterials.com"},{t:"2010s",tag:"dom",e:"万业企业收购凯世通切入离子注入",d:"万业企业收购凯世通（离子注入机厂商），补齐国产设备版图。",i:"国产离子注入从 0 到 1。",s:"万业企业公告",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"中低端注入设备国产化",d:"国产离子注入机在成熟制程使用，高能/大束流高端仍依赖进口。",i:"卡脖子等级高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"中低束流注入",i:"国际（Axcelis/AMAT）：中束流离子注入机成熟",d:"国产（凯世通/中科信）：中低束流机型批量应用",s:"离子源+质量分析+加速扫描原理",f:"束流稳定性、均匀性、产能",ip:"长期量产口碑",dc:"高端机型仍在追赶",dp:"已实现中低端替代"},{n:"高能/大束流注入",i:"国际（AMAT/Axcelis）：高能注入（>1MeV）与超大束流用于先进节点与功率器件",d:"国产：高能注入机研发验证中",s:"同源离子注入原理",f:"能量范围、束流强度、设备可靠性",ip:"高端注入全系产品",dc:"高能注入依赖进口"}]},
+n13:{route:"same", intl:"国际（SCREEN/Lam）湿法清洗：化学液（SPM 硫酸+双氧水去有机物、SC1 氨水+双氧水去颗粒、SC2 盐酸去金属）+兆声波（1MHz 以上声波空化剥离颗粒）+超纯水漂洗；先进节点要求颗粒去除率>99.99%、金属<1E9 atoms/cm²", dom:"国产盛美上海（单片兆声波清洗，首创 SAPS 兆声波技术）、至纯科技走同一湿法路线，颗粒去除与金属污染控制达成熟节点水平", same:"都是化学液+兆声波+超纯水漂洗的湿法清洗，药液体系相同", diff:"差在兆声波能量均匀性、药液浓度在线控制、先进节点（EUV 后清洗）工艺数据", pros:"国产：放量快、性价比、有差异化技术（SAPS）；国际：先进工艺库全", cons:"国产先进节点验证中", stage:"同路线；国产化率约 29%，进展最快的环节之一", mkt:"全球清洗设备市场约 60–70 亿美元/年；单片清洗 DNS（SCREEN）约 41%+，DNS+TEL+Lam+SEMES 合计约 90%；盛美全球约 8%（第四）、国内约 23%，整体国产化率约 29%，进展最快环节之一", ms:[{t:"1990s",tag:"intl",e:"DNS（SCREEN）清洗设备主导",d:"日本 SCREEN（原 DNS）以单片式清洗设备占据全球约 40%+ 份额，与 TEL、Lam 合计约 90%。",i:"清洗设备被日系卡住。",s:"SEMI",u:"https://www.semi.org"},{t:"2010s",tag:"dom",e:"盛美上海 SAPS 兆声波清洗出海",d:"盛美半导体以 SapS 兆声波清洗技术打入国际主流客户，成为国产清洗代表。",i:"国产清洗实现全球化突破。",s:"盛美上海年报",u:"https://www.acmrcsh.com"},{t:"2025",tag:"dom",e:"盛美全球约 8%、国内约 23%",d:"国产清洗设备在国内份额提升至约 23%，高端工艺仍以进口为主。",i:"清洗卡脖子等级中高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"单片兆声波清洗",i:"国际（DNS（SCREEN）/Lam）：单片兆声波清洗主导先进节点，颗粒去除高效",d:"国产（盛美上海）：SAPS 兆声波清洗打入国际客户，全球约 8%",s:"单片兆声波+药液清洗原理",f:"兆声波频率控制、对精细结构的损伤控制",ip:"先进节点工艺验证",dc:"极先进工艺配套仍在追赶",dp:"已全球化出货"},{n:"槽式批量清洗",i:"国际（TEL/SCREEN）：槽式批量清洗用于成熟制程与部分前道，成本低",d:"国产（至纯科技/屹唐股份）：槽式清洗在成熟制程放量",s:"槽式浸泡/喷淋清洗原理",f:"药液控制、交叉污染、自动化",ip:"量产经验",dc:"高端工艺份额低",dp:"成熟制程替代"}]},
+n14:{route:"same", intl:"国际（AMAT 设备+ Fujimi/Entegris/陶氏材料）CMP：抛光液化学腐蚀（氧化剂软化表面）+磨料机械研磨协同实现层间平坦化；设备核心是抛光头压力分区控制与终点检测（电机电流/光学信号）", dom:"国产华海清科（设备，自研抛光头与终点检测）、安集科技（抛光液）走同一 CMP 原理，设备国产化快", same:"都是化学腐蚀+机械研磨协同的 CMP 原理，抛光头分区压力控制", diff:"差在设备端抛光头压力分区精度（先进节点 7 区以上）、终点检测灵敏度；材料端磨料粒径分布、抛光垫泡孔结构", pros:"国际：设备+材料协同、先进工艺库；国产：设备突破快、性价比", cons:"国产材料端约 30%，抛光垫几乎空白", stage:"同路线；设备国产化约 39%、材料约 30%，材料端滞后", mkt:"全球 CMP 设备市场约 40–50 亿美元/年；AMAT+荏原垄断绝大部分；华海清科国内 12 英寸市占约 90%、整体国产化率约 30–40%；材料端抛光液国产约 30%、抛光垫国产约 20%（鼎龙国内约 70–80% 份额）", ms:[{t:"1990s",tag:"intl",e:"AMAT+荏原垄断 CMP 设备",d:"应用材料与日本荏原（Ebara）长期包揽全球化学机械抛光设备。",i:"CMP 设备双寡头格局。",s:"公司财报",u:"https://www.cninfo.com.cn"},{t:"2010s",tag:"dom",e:"华海清科 CMP 机台突破",d:"清华大学背景的华海清科实现 12 英寸 CMP 国产化，国内份额约 90%。",i:"CMP 设备国产化率约 30-40%。",s:"华海清科年报",u:"https://www.hwatsing.com"},{t:"2025",tag:"dom",e:"先进节点 CMP 仍验证中",d:"国产 CMP 在成熟制程放量，先进节点抛光工艺仍在验证。",i:"卡脖子等级中高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"CMP 设备路线",i:"国际（AMAT/荏原）：抛光头+终点检测闭环，全球垄断",d:"国产（华海清科）：12 英寸 CMP 国产化，国内约 90%",s:"旋转抛光头+抛光垫+终点检测原理",f:"终点检测精度、先进节点（低k/铜）工艺",ip:"先进节点 CMP 工艺",dc:"先进节点验证中",dp:"成熟制程自主"}]},
+n15:{route:"same", intl:"国际（KLA/AMAT/Onto）检测体系：光学散射测量（激光散射捕获缺陷，速度快）+明场/暗场成像+电子束（SEM/EB）复检（分辨率高但慢）；先进节点用“光学初检+电子束复检”+大数据算法分类缺陷", dom:"国产中科飞测（无图形晶圆检测）、上海精测走同一光学+电子束路线，成熟节点覆盖，先进节点缺陷灵敏度（<10nm）与吞吐率差距大", same:"都是光学散射/明暗场+电子束复检的检测体系，原理一致", diff:"差在检测灵敏度（先进节点缺陷<10nm）、吞吐率（每小时晶圆数）、缺陷分类算法库", pros:"国际：KLA 近乎垄断、数据积累壁垒极高；国产：性价比、本土服务", cons:"国产先进节点验证中、份额约 10%", stage:"同路线；国产化率约 10%，差距最大的环节之一", mkt:"全球量检测（过程控制）市场约 120–150 亿美元/年；KLA 全球约 56–73%（光学晶圆检测超 85%），2025 财年营收 121.6 亿美元；国产中科飞测国内份额约 21%（第一）、上海精测约 18%；整体国产化率约 10%，差距最大环节之一", ms:[{t:"1976",tag:"intl",e:"KLA 成立，量检测霸主",d:"KLA 专注缺陷检测与量测，后与 Tencor 合并（KLA-Tencor），长期垄断过程控制。",i:"量检测成为美系卡口。",s:"KLA 官网",u:"https://www.kla.com"},{t:"2010s",tag:"dom",e:"精测电子/中科飞测突破",d:"上海精测、中科飞测在光学/电子束检测领域实现国产化，进入产线验证。",i:"国产量检测从 0 到 1。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"国产化率约 10%",d:"KLA 仍占全球约 56-73%，光学晶圆检测超 85%，国产在成熟制程放量。",i:"高端量检测仍高度依赖进口。",s:"Gartner",u:"https://www.gartner.com"}], routes:[{n:"光学缺陷检测",i:"国际（KLA）：晶圆缺陷光学检测（明场/暗场/宽带等离子体），全球约 85%+",d:"国产（中科飞测/精测电子）：光学检测设备进入产线，国产化率约 10%",s:"光学散射/成像检测原理",f:"检测灵敏度（nm 级缺陷）、吞吐、算法",ip:"灵敏度与算法积累",dc:"先进节点灵敏度不足"},{n:"电子束量测/检测",i:"国际（KLA/AMAT）：电子束量测（CD-SEM）与缺陷复查",d:"国产（精测电子/东方晶源）：CD-SEM 与电子束检测研发验证",s:"电子束成像原理",f:"分辨率、吞吐、稳定性",ip:"高端电子束全系",dc:"电子束检测刚起步"}]},
+n16:{route:"same", intl:"国际（爱德万/泰瑞达）ATE 自动测试：测试程序加载到测试头→探针卡接触晶圆 pad→施加激励（数字向量/射频/电源）→采集响应判定良率；先进节点要求测试速度 Gbps 级、通道数上万、并行测试", dom:"国产华峰测控（模拟/混合信号测试机全球领先）、长川科技走同一 ATE 原理，模拟测试强，高端 SoC（射频/高速数字）验证中", same:"都是 ATE 自动测试——测试向量+探针卡+并行测试，原理一致", diff:"差在测试速度与通道数（SoC 上万通道 vs 模拟数百通道）、射频/高速数字测试能力", pros:"国产：模拟测试全球靠前、性价比；国际：高端 SoC 测试垄断", cons:"国产 SoC 高端机型验证中", stage:"同路线；国产模拟测试强、SoC 测试追赶中", mkt:"全球测试机市场约 80–90 亿美元/年；爱德万约 58%、泰瑞达约 30%（合计约 90%）；国内模拟/数模混合测试机国产化率超 85%，存储约 8–10%、SoC 仅个位数；长川科技国内测试机份额约 28.6%", ms:[{t:"1960s",tag:"intl",e:"爱德万/泰瑞达测试机双雄",d:"日本爱德万（Advantest）与美国泰瑞达（Teradyne）主导半导体测试机，分别强于存储/SoC。",i:"测试机高端被双寡头垄断。",s:"公司财报",u:"https://www.cninfo.com.cn"},{t:"2010s",tag:"dom",e:"长川科技/华峰测控模拟测试突破",d:"国产测试机在模拟/功率领域放量，华峰测控模拟测试机国产化率超 85%。",i:"模拟测试自主，存储/SoC 仍依赖进口。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"SoC/存储测试机仍依赖进口",d:"高端 SoC 与存储测试机主要靠爱德万/泰瑞达，长川国内份额约 28.6%。",i:"卡脖子等级高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"SoC 测试机路线",i:"国际（Teradyne）：SoC 测试机（UltraFlex 系列）主导",d:"国产（长川科技）：SoC 测试机中低端放量，国内约 28.6%",s:"数字/混合信号测试原理",f:"通道数、速率、精度",ip:"高端 SoC 测试生态",dc:"高端 SoC 测试仍依赖进口"},{n:"存储测试机路线",i:"国际（Advantest）：存储测试机（T5833/V93000 等）主导",d:"国产（华峰测控/武汉精鸿）：存储测试研发验证",s:"存储阵列读写测试原理",f:"速率、并行度、良率分析",ip:"存储测试垄断",dc:"存储测试机依赖进口"}]},
+n17:{route:"same", intl:"国际（DISCO/东京精密）：晶圆减薄（背面研磨+TAIKO 边缘保留，减薄至 50μm 以下）+划片（刀片切割/激光隐形切割 Stealth Dicing——激光在晶圆内部形成改质层再裂片，无崩边）", dom:"国产光力科技走同一减薄/划片路线，中低端刀切放量，激光隐形切割（先进封装超薄需求）验证中", same:"都是减薄（背面研磨）+划片（刀切/激光）流程", diff:"差在超薄晶圆（<50μm）翘曲控制、TAIKO 工艺、激光隐形切割的光学改质精度", pros:"国际：DISCO 高端垄断、工艺库全；国产：性价比、本土服务", cons:"国产高端激光划片验证中", stage:"同路线；国产化率低，高端追赶中", mkt:"全球划片/减薄设备市场约 30–40 亿美元/年；DISCO 在晶圆切割与研磨领域全球约 70–80%，DISCO+东京精密+光力合计约 90%；光力科技全球前三，高端激光隐形切割验证中", ms:[{t:"1980s",tag:"intl",e:"DISCO 划片/减薄设备垄断",d:"日本 DISCO 在晶圆划片机、减薄机领域占据全球约 70-80% 份额，与东京精密合计约 90%。",i:"后道切割环节被日系卡住。",s:"DISCO 财报",u:"https://www.disco.co.jp"},{t:"2010s",tag:"dom",e:"光力科技/中电科 45 所突破",d:"国产划片机、减薄机在中低端市场替代，进入国内封测厂。",i:"中低端替代、高端仍依赖进口。",s:"光力科技年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"高端切割设备仍进口",d:"先进封装用高精度切割、激光划片仍以 DISCO 为主。",i:"卡脖子等级中高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"刀片切割路线",i:"国际（DISCO）：金刚石刀片划片机全球 70-80%",d:"国产（光力科技/中电科 45 所）：刀片划片中低端替代",s:"金刚石刀片机械切割原理",f:"切割精度、崩边控制、晶圆厚度兼容",ip:"精密刀片与主轴工艺",dc:"高端超薄晶圆切割仍进口"},{n:"激光切割路线",i:"国际（DISCO/东京精密）：激光隐切/全切用于超薄晶圆与 MEMS",d:"国产：激光切割设备在研验证",s:"激光改质/烧蚀切割原理",f:"激光波长控制、热影响区",ip:"激光切割量产经验",dc:"激光切割依赖进口"}]},
+n18:{route:"same", intl:"国际（台积电 CoWoS/SoIC、日月光、Amkor）先进封装：TSV 硅通孔+ RDL 重布线+ 混合键合（Cu-Cu 直接键合，无凸点，节距<10μm）；CoWoS 以硅中介层 2.5D 集成 HBM 与 GPU", dom:"国产长电/通富/华天：传统封装（引线键合/倒装）全球前列，2.5D 已量产，3D 混合键合（键合设备与临时键合材料）追赶中", same:"2.5D/3D 演进方向一致：TSV+RDL+混合键合", diff:"差在混合键合良率（<1μm 对位精度）、CoWoS 产能、键合设备（热压/等离子活化）与材料", pros:"国际：台积电产能+良率独占；国产：传统封装强、2.5D 已量产、性价比", cons:"国产 3D 混合键合代差 2–3 年", stage:"同路线；国产 2.5D 量产、3D 混合键合追赶中", mkt:"全球先进封装市场 2025 年约 518.6 亿美元（+10.3%），占整体封装 51.2%；台积电 CoWoS 产能占全球先进封装约 85%+；中国大陆产能约占 30% 但集中中低端，2.5D/3D 高端国产化率不到 10%；长电/通富/华天国内合计约 30%", ms:[{t:"2011",tag:"intl",e:"台积电 CoWoS 先进封装推出",d:"台积电推出 CoWoS 2.5D 封装（与赛灵思合作），开启先进封装时代。",i:"先进封装成为 AI 芯片核心卡口。",s:"台积电技术论坛",u:"https://www.tsmc.com"},{t:"2010s",tag:"dom",e:"长电/通富/华天先进封装放量",d:"大陆封测三巨头（长电、通富、华天）在 FC/Bumping 等中端先进封装放量。",i:"大陆封装产能约 30%，但偏中低端。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"2.5D/3D 高端国产化率不到 10%",d:"CoWoS 类 2.5D/3D 高端封装主要由台积电（约 85%+）与日月光、Amkor 供应。",i:"先进封装成为新卡脖子点。",s:"Yole",u:"https://www.yolegroup.com"}], routes:[{n:"2.5D 封装（CoWoS/中介层）",i:"国际（台积电 CoWoS/日月光 2.5D）：硅中介层+TSV，AI 芯片标配，台积电约 85%+",d:"国产（长电 XDFOI/通富）：2.5D 封装在中端放量，高端验证",s:"硅中介层+TSV+微凸点原理",f:"中介层面积、良率、与 HBM 集成",ip:"AI 芯片 2.5D 生态",dc:"高端 2.5D 份额不到 10%",dp:"中端 2.5D 已量产"},{n:"3D 堆叠（SoIC/混合键合）",i:"国际（台积电 SoIC）：无凸点混合键合 3D 堆叠，先进节点用",d:"国产：混合键合 3D 封装研发阶段",s:"混合键合（Cu-Cu 直接键合）原理",f:"键合精度、对准、翘曲控制",ip:"先进 3D 集成能力",dc:"3D 高端依赖台积电"}]},
+n19:{route:"same", intl:"国际（爱德万/泰瑞达）成品测试：系统级测试（SLT）在真实应用环境跑负载、射频校准、老化测试；ATE 高端机型覆盖数字/射频/功率", dom:"国产华峰测控/长川走同一 ATE 路线，模拟/功率测试强，高端系统级测试与射频覆盖追赶", same:"同晶圆测试，ATE 原理一致（激励-响应判定）", diff:"差在系统级测试（SLT）方案、射频/毫米波测试能力、测试座与测试程序库", pros:"国产：份额提升、性价比；国际：高端测试垄断", cons:"国产高端测试能力依赖进口设备", stage:"同路线；国产份额提升中", mkt:"全球测试机市场约 80–90 亿美元/年；爱德万/泰瑞达垄断高端 SoC/系统级测试；国产华峰测控模拟测试强，高端系统级测试（SLT）与射频能力依赖进口设备", ms:[{t:"1980s",tag:"intl",e:"Teradyne/Advantest 巩固测试双雄",d:"泰瑞达在 SoC 测试、爱德万在存储测试分别称雄，合计主导高端成品测试。",i:"高端测试机垄断。",s:"公司财报",u:"https://www.cninfo.com.cn"},{t:"2010s",tag:"dom",e:"国产测试机中低端替代",d:"长川科技、华峰测控在模拟/功率测试放量，国产化率提升。",i:"中低端自主、高端仍进口。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"高端 SoC/存储测试仍依赖进口",d:"先进制程芯片成品测试主要用爱德万/泰瑞达机台。",i:"卡脖子等级高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"SoC/射频成品测试",i:"国际（Teradyne/Advantest）：高端成品测试垄断",d:"国产（长川科技/华峰测控）：模拟/功率成品测试放量",s:"成品功能/参数测试原理",f:"测试精度、通道密度、大数据分析",ip:"高端测试软件生态",dc:"高端 SoC 测试仍依赖进口",dp:"模拟/功率已自主"}]},
+n20:{route:"same", intl:"国际（SK海力士/三星/美光）HBM：DRAM 芯粒 TSV 垂直堆叠（8/12 层）+混合键合（HBM3E）+底部逻辑 die+微凸点/无凸点连接，带宽密度大幅提升，与 GPU 通过 CoWoS 集成", dom:"国产长鑫存储（DDR 量产）、兆易创新攻关 HBM：TSV 堆叠、混合键合、先进 DRAM 颗粒（带宽）尚未量产", same:"TSV 堆叠+混合键合+逻辑 die 的结构路线一致", diff:"差在堆叠层数与良率（HBM3E 12 层 vs 研发阶段）、DRAM 颗粒本身带宽、以及配套（TSV 设备/临时键合）", pros:"国际：主导+设备材料协同成熟；国产：自主可控需求明确", cons:"国产 HBM 尚未量产，设备与材料配套薄弱", stage:"同路线；国产研发攻关期，落后约 2 代", mkt:"全球 HBM 市场 2025 年约 300–400 亿美元级、高速增长；2025Q3 营收份额 SK海力士 57%、三星 22%、美光 21%（合计近 100%）；国产长鑫 HBM 尚在研发攻关，未量产", ms:[{t:"2013",tag:"intl",e:"SK海力士首发 HBM",d:"SK海力士与 AMD 合作推出首代 HBM（高带宽内存），确立 HBM 技术标准。",i:"HBM 成为 AI 芯片带宽瓶颈的解药。",s:"SK海力士/AMD 发布",u:"https://www.skhynix.com"},{t:"2020",tag:"intl",e:"HBM2E 进入 AI 加速器",d:"HBM2E 在 NVIDIA A100 等 AI 芯片上放量，SK海力士保持领先。",i:"AI 训练芯片与 HBM 深度绑定。",s:"NVIDIA 发布",u:"https://www.nvidia.com"},{t:"2023-2025",tag:"dom",e:"长鑫存储 HBM 研发起步",d:"国产存储厂商推进 HBM2/HBM3 研发与客户验证，距量产仍有距离。",i:"HBM 卡脖子等级极高。",s:"行业研报",u:"https://www.semi.org"},{t:"2024",tag:"intl",e:"HBM3E 放量，SK海力士份额约 57%",d:"HBM3E 供不应求，SK海力士市占率约 57%、三星约 22%、美光约 21%。",i:"HBM 成为存储领域最强卡口。",s:"Counterpoint/TrendForce",u:"https://www.trendforce.com"},{t:"2026-10",tag:"intl",e:"SK海力士重启大连 NAND 扩产，赴美建厂换设备放行",d:"重启大连 2 号厂扩产约 50%，并以在美新建厂为条件，寻求美方批准向大连厂出口美系设备（路透 10-14 报道）。",i:"存储产能与中国市场绑定加深，美系设备对华许可博弈持续。",s:"新浪财经（引路透社）",u:"https://finance.sina.com.cn/cj/2026-10-16/doc-inivkncx8289261.shtml",n:true}], routes:[{n:"TSV 堆叠+高带宽互连路线",i:"国际（SK海力士/三星/美光）：TSV+μbump 堆叠 8-12 层，HBM3E 放量（SK海力士约 57%）",d:"国产（长鑫存储）：HBM2 研发与客户验证，HBM3 在研",s:"都是 TSV+微凸点堆叠、DRAM 颗粒互连",f:"堆叠层数、良率、与 GPU 协同设计、速度（HBM3E 达 9.6Gbps+）",ip:"与 GPU/HBM 生态绑定、量产良率",dc:"HBM 量产与生态差距大"}]},
+n21:{route:"diff", intl:"国际 NVIDIA 走通用 GPU 路线：数千 CUDA 核心并行+Tensor Core 矩阵加速，CUDA 软件生态（编程模型+库+框架）垄断；谷歌 TPU 走脉动阵列专用加速", dom:"国产华为昇腾（达芬奇架构 AI Core 阵列）、寒武纪（MLU）走专用 AI 加速器路线，自研软件栈（CANN/编译器）", same:"都是并行计算+矩阵乘法加速（Tensor Core/AI Core），都依赖先进制程+HBM+先进封装", diff:"通用 GPU 可编程性强（CUDA 覆盖科学计算/图形，生态开放）vs 专用加速器算力密度高但编程灵活性与生态弱", pros:"国产：能效比可做高（专用架构）、自主可控、无断供风险；国际：生态与开发体验垄断", cons:"国产软件栈/框架兼容弱、训练生态（PyTorch 适配）打磨中", stage:"路线部分分野；国产专用加速器性能追赶，进程落后约 2–3 年", mkt:"全球数据中心 GPU/加速器市场 2025 年约 1000 亿美元级；NVIDIA 全球约 90%+；中国市场 2026 上半年 NVIDIA 34%、华为昇腾 28%（IDC），2025 年国产 AI 芯片占国内约 41%、华为出货约 81.2 万张", ms:[{t:"2016",tag:"intl",e:"NVIDIA V100 开启 AI 训练时代",d:"Volta 架构 V100 成为深度学习训练标配，NVIDIA 确立 AI 算力霸主地位。",i:"AI 训练芯片格局定型。",s:"NVIDIA 发布",u:"https://www.nvidia.com"},{t:"2019",tag:"dom",e:"华为昇腾 910 发布",d:"昇腾 910 面向训练场景发布，开启国产 AI 芯片之路。",i:"国产 AI 芯片从 0 到 1。",s:"华为全联接大会",u:"https://www.huawei.com"},{t:"2022",tag:"intl",e:"H100（Hopper）发布",d:"H100 成为大模型训练主力，全球 AI 加速器市占率约 90%+。",i:"高端算力单一依赖。",s:"NVIDIA 财报",u:"https://www.nvidia.com"},{t:"2022-2023",tag:"intl",e:"美国对华高端 GPU 出口管制",d:"A100/H100 等高端 AI 芯片列入对华禁售，后续 H20 等降规版亦受限。",i:"AI 算力卡脖子升级为管制级。",s:"美国商务部 BIS",u:"https://www.bis.doc.gov"},{t:"2023-2025",tag:"dom",e:"昇腾 910B/910C 放量",d:"IDC 数据：2025 年国产芯片占国内 AI 市场约 41%，华为昇腾出货约 81 万张。",i:"国产 AI 算力快速替代。",s:"IDC",u:"https://www.idc.com"},{t:"2026-10",tag:"dom",e:"迈特芯 3D-TPU 端侧大模型芯片预告 Q4 量产",d:"湾芯展披露自研 3D-TPU 架构端侧大模型芯片，依托 3D-IC 将带宽利用率提至 80% 以上，预计 2026 年 Q4 量产。",i:"国产端侧 AI 芯片新增 3D-IC 路线玩家。",s:"南方+客户端",u:"http://m.toutiao.com/group/7696499170965783075/",n:true}], routes:[{n:"单芯片大算力（GPU/ASIC）",i:"国际（NVIDIA）：H100/B200 + CUDA 生态，全球 AI 加速器约 90%+",d:"国产（华为昇腾 910B/C）：自研达芬奇架构+CANN 生态，国内份额快速提升",s:"都是高带宽 HBM 配单芯片训练加速",f:"算力密度、互联（NVLink vs HCCS）、软件生态成熟度",ip:"CUDA 软件生态与先进制程",dc:"软件生态与制程代差",dp:"自主可控、国内场景适配好"},{n:"多芯互连/集群训练路线",i:"国际（NVIDIA NVLink/NVSwitch 集群、谷歌 TPU Pod）：大规模集群训练",d:"国产（寒武纪/摩尔线程/壁仞等）：国产集群方案追赶",s:"都是多卡互联集群训练架构",f:"互联带宽、集合通信库、集群线性扩展",ip:"集群生态与网络方案",dc:"集群规模与软件栈待成熟"}]},
+n22:{route:"same", intl:"国际苹果/高通：Arm 架构+先进制程（台积电 3nm）+大小核 CPU+专用 NPU（AI 加速）+基带集成；苹果自研 CPU/GPU/NPU 全栈，高通用公版核+自研 GPU", dom:"国产华为麒麟（自研 CPU/GPU/NPU，受先进制程产能限制）、紫光展锐（Arm 公版核，中低端）", same:"都是 Arm 架构+先进制程+大小核+NPU 的 SoC 设计范式", diff:"苹果自研全栈（CPU/GPU/NPU/基带）vs 国产（麒麟自研核但制程受限、展锐用公版核）", pros:"国产：自主设计能力已具备（麒麟）、可控性强；国际：制程与生态领先", cons:"国产先进制程产能受限，麒麟制程落后 1–2 代", stage:"同路线；华为麒麟回归但制程受限，展锐冲高中端", mkt:"全球智能手机 SoC 市场约 400–500 亿美元/年；苹果/高通/联发科前三；华为麒麟回归但受先进制程产能限制，展锐集中中低端", ms:[{t:"2007",tag:"intl",e:"苹果发布自研 A 系列 SoC",d:"iPhone 搭载自研 A4 SoC 起，手机旗舰芯片进入自研军备竞赛。",i:"手机 SoC 成为先进制程最大客户群。",s:"苹果发布会",u:"https://www.apple.com"},{t:"2020",tag:"dom",e:"华为麒麟 9000（5nm）登顶",d:"麒麟 9000 采用 5nm 制程，是国产手机 SoC 的巅峰之作。",i:"国产旗舰 SoC 一度比肩国际。",s:"华为发布",u:"https://www.huawei.com"},{t:"2020",tag:"intl",e:"制裁导致麒麟断供",d:"先进制程代工受限后，麒麟芯片无法量产，华为手机芯片被迫转向外购。",i:"先进制程依赖成为致命卡点。",s:"公开报道",u:"https://www.huawei.com"},{t:"2023",tag:"dom",e:"麒麟 9000S 回归",d:"Mate 60 搭载麒麟 9000S（约 7nm 等效），国产供应链（中芯+国产 EDA）实现突围。",i:"国产手机 SoC 产业链打通。",s:"公开拆解/华为发布",u:"https://www.huawei.com"},{t:"2025",tag:"dom",e:"麒麟 9 系持续迭代",d:"麒麟 9000 系列持续迭代，但与国际最新旗舰在制程与 GPU 上仍有代差。",i:"手机 SoC 卡脖子等级由极高降为高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"移动旗舰 SoC 集成路线",i:"国际（苹果 A 系/高通 8 系）：3nm 制程+自研 CPU/GPU，台积电代工",d:"国产（华为麒麟 9 系）：约 7nm 等效制程，中芯国际代工，架构自研",s:"都是 CPU+GPU+NPU+基带集成 SoC",f:"制程节点（3nm vs 7nm 等效）、GPU/NPU 性能、能效",ip:"先进制程与生态",dc:"制程与性能代差",dp:"供应链自主可控"}]},
+n23:{route:"same", intl:"国际 NVIDIA DGX/HGX（8 卡 NVLink 全互联+NVSwitch 交换）、谷歌 TPU 集群（光交换互联）：高速互联（NVLink/InfiniBand/RDMA）+HBM 大显存池化+液冷", dom:"国产浪潮信息（整机）、寒武纪（加速卡+集群）走同一 GPU/NPU 集群架构，自研互联（如华为昇腾 HCCS）替代 NVLink", same:"集群架构一致：多卡高速互联+大显存+并行训练框架（集合通信）", diff:"差在互联生态：NVLink/InfiniBand 生态成熟 vs 自研互联的带宽与软件栈", pros:"国产：整机交付快、自主可控、性价比；国际：生态成熟、性能领先", cons:"国产互联带宽与训练软件栈弱", stage:"同路线；国产 AI 集群替代加速，进程落后约 2 年", mkt:"全球 AI 服务器市场 2026 年预计超 2000 亿美元；浪潮信息国内第一（约 50% 份额）、全球前三；NVIDIA DGX/HGX 主导高端训练市场，国产集群替代加速", ms:[{t:"2018",tag:"intl",e:"NVIDIA HGX 服务器系统确立",d:"NVIDIA 推出 HGX 整机系统（多 GPU 互联），定义 AI 服务器形态。",i:"AI 服务器市场被英伟达体系主导。",s:"NVIDIA 发布",u:"https://www.nvidia.com"},{t:"2023",tag:"dom",e:"国产 AI 服务器放量",d:"浪潮、华为 Atlas 等国产 AI 服务器在国内市场份额提升，配套国产 GPU。",i:"AI 基建国产化提速。",s:"IDC",u:"https://www.idc.com"},{t:"2025",tag:"dom",e:"中国 AI 服务器出货高增、国产化加速",d:"受算力需求与自主可控双驱动，国产 AI 服务器与加速卡出货快速增长。",i:"服务器环节国产替代空间大。",s:"IDC",u:"https://www.idc.com"}], routes:[{n:"AI 服务器整机路线",i:"国际（NVIDIA HGX/DGX 体系）：8 卡互连整机+软件栈一体交付",d:"国产（浪潮/华为 Atlas）：国产 GPU 8/16 卡整机，适配国产加速卡",s:"都是多 GPU 互联整机形态",f:"高速互联（NVLink vs PCIe/自研）、散热、软件栈",ip:"整机+网络+软件一体化",dc:"高端互联与软件栈依赖进口",dp:"国产 GPU 配套整机放量"}]},
+n24:{route:"same", intl:"国际 NVIDIA Orin/Thor（GPU 架构+车规）、特斯拉 FSD（自研 NPU）、Mobileye（专用视觉处理）：车规 AI SoC（算力 TOPS 级）+传感器融合+工具链（CUDA/自研）", dom:"国产地平线征程（BPU 自研架构，已量产上车）、华为 MDC（昇腾）走同一车规 AI SoC 路线", same:"都是车规级 AI SoC（NPU 加速）+域控制器+工具链，架构范式一致", diff:"差在算力规模（Thor 2000 TOPS vs 国产数百 TOPS）与算法工具链绑定（CUDA 生态 vs 自研编译器）", pros:"国产：量产规模国内领先、性价比、本土算法适配；国际：算力与生态领先", cons:"国产高阶方案渗透初期、工具链待完善", stage:"同路线；国产高阶智驾量产加速，进程落后约 2 年", mkt:"全球智驾芯片市场高速增长；NVIDIA Orin 高阶量产上车广泛、算力领先；地平线征程系列国内高阶智驾量产第一（累计出货数百万颗），华为 MDC 加速放量", ms:[{t:"2015",tag:"intl",e:"Mobileye EyeQ 主导 ADAS",d:"Mobileye 以 EyeQ 系列主导高级辅助驾驶芯片，成为智驾芯片标杆。",i:"智驾芯片格局初定。",s:"Mobileye 财报",u:"https://www.mobileye.com"},{t:"2019",tag:"intl",e:"NVIDIA Orin 发布",d:"Orin 面向 L2+/L3 高阶智驾，2022 年量产，成为主流智驾算力平台。",i:"高阶智驾算力依赖英伟达。",s:"NVIDIA 发布",u:"https://www.nvidia.com"},{t:"2021",tag:"dom",e:"地平线征程 5 发布",d:"地平线发布征程 5（国产自动驾驶芯片），多家车企定点。",i:"国产智驾芯片破局。",s:"地平线发布",u:"https://www.hkexnews.hk"},{t:"2023-2025",tag:"dom",e:"华为 MDC/黑芝麻等放量",d:"华为 MDC 平台与黑芝麻、地平线在 L2+ 车型批量上车，国产化提速。",i:"高阶智驾高端芯片仍依赖进口。",s:"公司发布/行业研报",u:"https://www.semi.org"}], routes:[{n:"专用 ASIC 智驾芯片路线",i:"国际（Mobileye EyeQ）：专用视觉 ASIC，低功耗高性价比，L2 主导",d:"国产（地平线征程 6）：BPU 架构 ASIC，L2-L4 全系，已规模上车",s:"专用加速器架构、软硬协同",f:"算力密度、算法灵活性、工具链",ip:"量产规模与算法积累",dc:"高阶算法工具链生态",dp:"本土场景适配、已规模上车"},{n:"通用可编程算力平台路线",i:"国际（NVIDIA Orin/Thor）：通用 GPU 架构，L2+~L4 主流",d:"国产（华为 MDC）：昇腾 NPU 平台，高阶智驾算力国产替代",s:"通用可编程算力平台路线",f:"单芯片算力、软件栈（CUDA vs CANN）、生态",ip:"生态与迭代速度",dc:"生态差距、先进制程"}]},
+m1:{route:"same", intl:"国际（JSR/TOK/信越）化学放大光刻胶（CAR）：光致酸产生剂（PAG）曝光产酸→催化树脂去保护反应，高感度；KrF/ArF 用高分辨率树脂+ PAG+添加剂；EUV 胶用金属氧化物（锡基）体系，需与光刻机深度联调", dom:"国产南大光电（ArF 胶）、彤程新材（北京科华，KrF/ArF）走同一 CAR 路线，树脂与 PAG 自主合成，KrF 量产、ArF 验证中", same:"都是化学放大光刻胶路线（PAG 催化+树脂去保护）", diff:"差在树脂与 PAG 配方（分子量分布、酸扩散控制）、EUV 胶（金属氧化物配方）与光刻机联调数据", pros:"国际：先进胶约 90%、配方数据库大；国产：自主可控、成本", cons:"国产 EUV 胶≈0，2025 年起 ArF/EUV 胶被日本纳入出口管制", stage:"同路线；国产 KrF 量产、ArF 验证、EUV 空白，代差明显", mkt:"全球光刻胶市场约 20–25 亿美元/年；TOK/JSR/信越三巨头合计约 60.5%（日经 2025），EUV/ArF 高端约 90–95%；国产化率：g/i 线 20–25%、KrF 约 3%、ArF 不足 1%（中国电子材料行业协会）；2025 年 11 月日本将 ArF/EUV 胶纳入出口管制", ms:[{t:"1968",tag:"intl",e:"东京应化（TOK）开创光刻胶",d:"TOK 成为全球最早的光刻胶厂商之一，日系光刻胶体系由此奠基。",i:"日系光刻胶垄断起点。",s:"TOK 官网",u:"https://www.tok.co.jp"},{t:"1980s",tag:"intl",e:"JSR/信越推进 ArF 胶研发",d:"JSR、信越化学、TOK 在 ArF（193nm）光刻胶上领先，EUV 胶亦由日系主导。",i:"高端光刻胶格局固化。",s:"日经新闻",u:"https://www.jsr.co.jp"},{t:"2010s",tag:"dom",e:"南大光电 ArF 胶突破",d:"南大光电在 ArF（193nm）光刻胶上实现国产化突破，进入验证。",i:"国产高端胶从 0 到 1。",s:"南大光电公告",u:"https://www.cninfo.com.cn"},{t:"2025-11",tag:"intl",e:"日本将 ArF/EUV 胶纳入出口管制",d:"日本政府将高端光刻胶列入出口管制清单，直接卡住先进制程材料供应。",i:"光刻胶卡脖子升级为管制级。",s:"日本经产省",u:"https://www.meti.go.jp"},{t:"2025",tag:"dom",e:"国产化率：g/i 线约 20-25%、KrF 约 3%、ArF 不足 1%",d:"国产光刻胶在中低端放量，高端仍依赖日本。",i:"ArF/EUV 胶卡脖子等级极高。",s:"中国电子材料行业协会",u:"http://www.csia.net.cn"}], routes:[{n:"ArF（193nm）光刻胶",i:"国际（JSR/信越/TOK）：ArF 胶（含浸没式）先进节点标配，日系垄断约 90%+",d:"国产（南大光电/彤程新材）：ArF 胶突破验证，国产化率不足 1%",s:"化学放大光刻胶体系（PAG+树脂）",f:"分辨率、LWR（线宽粗糙度）、与光刻工艺匹配",ip:"先进节点验证",dc:"先进节点用 ArF 胶依赖日本",dp:"已送样验证"},{n:"KrF（248nm）光刻胶",i:"国际（TOK/JSR/信越）：KrF 胶成熟，日系主导",d:"国产（北京科华/晶瑞电材）：KrF 胶小批量，国产化率约 3%",s:"化学放大体系同源",f:"灵敏度、工艺窗口",ip:"量产稳定性",dc:"份额极低"},{n:"g/i 线光刻胶",i:"国际（TOK/JSR）：g/i 线胶用于成熟制程",d:"国产（容大感光等）：g/i 线胶放量，国产化率约 20-25%",s:"酚醛树脂/DNQ 体系",f:"对比度、批间一致性",ip:"品牌与认证",dc:"中低端仍部分进口",dp:"已规模替代"}]},
+m2:{route:"same", intl:"国际（液化空气/林德/大阳日酸/空气化工）电子特气：合成+深度纯化（精馏/吸附/膜分离）+钢瓶内壁处理（防金属吸附）+现场管道供气；先进制程要求 9N（99.9999999%）纯度", dom:"国产华特气体、金宏气体走同一合成/纯化路线，部分品种（刻蚀气/沉积气）纯化达量产水平", same:"都是合成/精馏/吸附纯化+充装输送，路线一致", diff:"差在超高纯（9N）深度纯化技术（杂质在线检测）、气瓶内壁处理与现场供气体系", pros:"国产：品种突破、成本、本土供应；国际：品种全、纯度高", cons:"国产高端品种（9N 级）仍依赖进口", stage:"同路线；国产品种陆续验证，整体仍依赖外资", mkt:"中国电子特气市场约 250–300 亿元/年；2024 年国内份额空气化工 25%、林德 23%、液化空气 22%、大阳日酸 16%（合计约 86%）；全球高纯特气 Top5 合计约 54%；国产华特/金宏品种突破、整体国产化率仍低", ms:[{t:"1990s",tag:"intl",e:"全球电子特气寡头格局成型",d:"空气化工、林德、液化空气、大阳日酸四大巨头主导电子特气，2024 年合计约 86%。",i:"特气供应被欧美日垄断。",s:"行业研报",u:"https://www.semi.org"},{t:"2010s",tag:"dom",e:"华特气体/金宏气体突破",d:"国产特气在光刻气、高纯氨等品类实现进口替代，进入主流产线。",i:"特气国产化率提升。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"高端光刻气国产化率约 10-20%",d:"光刻气等高端品种仍主要依赖进口，供应稳定性受地缘影响。",i:"电子特气卡脖子等级高。",s:"中国电子材料行业协会",u:"http://www.csia.net.cn"}], routes:[{n:"大宗电子特气（高纯 N2/H2/O2）",i:"国际（林德/空气化工/液化空气）：现场制气+管网供气，全球约 86%",d:"国产（华特气体/金宏气体/杭氧股份）：大宗特气供气能力提升",s:"气体纯化+现场供应模式",f:"纯度一致性、供应连续性",ip:"大型产线整体供气方案",dc:"高端纯化与整体供气方案",dp:"本土服务与成本优势"},{n:"光刻气/掺杂气（稀有气体）",i:"国际（大阳日酸/液化空气）：光刻气（Kr/Ar/Xe 混合）垄断",d:"国产（华特气体）：光刻气实现突破，国产化率约 10-20%",s:"稀有气体纯化+配比",f:"纯度（ppb 级）、稳定性、认证",ip:"半导体级认证壁垒",dc:"高端品种仍进口",dp:"已进入主流产线"}]},
+m3:{route:"same", intl:"国际（Fujimi/Entegris/陶氏）CMP 材料：抛光液=磨料（胶体二氧化硅/氧化铈，粒径 nm 级）+氧化剂（H₂O₂）+添加剂（pH 调节/螯合）；抛光垫=聚氨酯发泡结构（泡孔尺寸/硬度决定平坦化能力）", dom:"国产安集科技走同一配方路线，磨料粒径与抛光速率匹配，已进入主流产线", same:"都是磨料+氧化剂+添加剂的抛光液配方路线，抛光垫同为聚氨酯发泡", diff:"差在磨料粒径分布（先进节点<30nm）、抛光垫泡孔均匀性（国产几乎空白）", pros:"国际：配方与验证成熟；国产：抛光液突破、性价比", cons:"国产抛光液约 30%、抛光垫几乎空白", stage:"同路线；抛光液放量、抛光垫研发中", mkt:"全球 CMP 材料市场约 40–50 亿美元/年；抛光液 Fujimi/Entegris/陶氏主导（日系约 70%）；国产安集科技抛光液约 30%、鼎龙抛光垫国内约 70–80% 份额（全球占比仍低），整体材料端国产化滞后于设备", ms:[{t:"1990s",tag:"intl",e:"Fujimi/陶氏垄断 CMP 材料",d:"日本 Fujimi、美国 Cabot/陶氏在抛光液、抛光垫上长期主导，日系合计约 70%。",i:"CMP 材料被美日卡住。",s:"行业研报",u:"https://www.semi.org"},{t:"2010s",tag:"dom",e:"安集科技抛光液放量",d:"安集科技 CMP 抛光液进入主流产线，国内份额约 30%。",i:"抛光液国产突破。",s:"安集科技年报",u:"https://www.anjimicro.com"},{t:"2020s",tag:"dom",e:"鼎龙股份抛光垫国内约 70-80%",d:"鼎龙抛光垫实现国产替代，但全球占比仍低，先进节点验证中。",i:"抛光垫国产化提速、高端仍空白。",s:"鼎龙股份年报",u:"https://www.cninfo.com.cn"}], routes:[{n:"抛光液路线",i:"国际（Fujimi/Entegris/Cabot）：胶体二氧化硅磨料+氧化剂配方，日系约 70%",d:"国产（安集科技）：抛光液进入主流产线，国内约 30%",s:"磨料+氧化剂+添加剂配方路线",f:"磨料粒径分布（先进节点小于 30nm）、抛光速率选择性",ip:"先进节点配方积累",dc:"先进节点抛光液仍进口",dp:"成熟制程替代"},{n:"抛光垫路线",i:"国际（陶氏）：聚氨酯发泡抛光垫垄断（约 80%+）",d:"国产（鼎龙股份）：抛光垫国内约 70-80%，全球占比仍低",s:"聚氨酯发泡结构路线",f:"泡孔均匀性、硬度一致性、寿命",ip:"高端抛光垫制造",dc:"先进节点抛光垫验证中"}]},
+m4:{route:"same", intl:"国际（JX金属/霍尼韦尔/东曹）溅射靶材：高纯金属（5N–6N，杂质<1ppm）+靶材晶粒组织控制（细晶、织构均匀）→磁控溅射（Ar 等离子体轰击靶材，溅射原子沉积成膜）", dom:"国产江丰电子/有研新材走同一高纯金属+磁控溅射路线，纯度与晶粒控制接近，已进入主流产线", same:"都是高纯金属靶+磁控溅射沉积，路线一致", diff:"差在超高纯（6N+）提纯（区域熔炼）与晶粒织构控制（影响成膜均匀性）", pros:"国产：已入主流产线、性价比、交付快；国际：高端稳定", cons:"国产先进节点份额仍低", stage:"同路线；国产已入主流产线，先进节点验证中", mkt:"全球溅射靶材市场约 20–30 亿美元/年；JX 金属全球第一、日美主导高端；国产江丰电子/有研新材已进入主流产线，先进节点份额仍低", ms:[{t:"1990s",tag:"intl",e:"JX 金属/霍尼韦尔/东曹主导靶材",d:"日美企业在高纯溅射靶材（5N-6N）上主导，高端靶材高度集中。",i:"溅射靶材卡脖子成型。",s:"行业研报",u:"https://www.semi.org"},{t:"2010s",tag:"dom",e:"江丰电子/有研新材进入主流产线",d:"国产高纯靶材进入主流代工产线，纯度与晶粒控制接近国际水平。",i:"国产靶材实现替代。",s:"江丰电子年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"先进节点份额仍低",d:"6N+ 超高纯靶材与先进节点验证仍在追赶。",i:"卡脖子等级中高。",s:"行业研报",u:"https://www.semi.org"}], routes:[{n:"高纯溅射靶材路线",i:"国际（JX 金属/霍尼韦尔/东曹）：6N 高纯+晶粒织构控制，高端主导",d:"国产（江丰电子/有研新材）：5N-6N 提纯与织构控制接近国际，进入主流产线",s:"高纯金属+磁控溅射沉积",f:"超高纯（6N+）区域熔炼、大尺寸靶材晶粒均匀性",ip:"高端靶材工艺",dc:"先进节点份额仍低",dp:"已入主流产线"}]},
+m5:{route:"same", intl:"国际（巴斯夫/三菱化学/关东电化）湿电子化学品：高纯试剂（双氧水/硫酸/氨水）经精馏/亚沸蒸馏/膜过滤提纯，金属杂质控制在 ppt 级（G5 级），包装桶内壁氟化处理防再污染", dom:"国产晶瑞电材/江化微走同一蒸馏/膜过滤提纯路线，G2–G4 放量，G5 级（ppt 级金属控制）验证中", same:"都是精馏/蒸馏/膜过滤提纯路线", diff:"差在 ppt 级金属杂质控制（提纯与分析检测能力）、包装洁净度", pros:"国产：G2–G4 放量、成本、本土供应；国际：G5 垄断", cons:"国产高端 G5 仍依赖进口", stage:"同路线；国产化率提升快，G5 验证中", mkt:"全球湿电子化学品市场约 50–60 亿美元/年；G5 级（ppt 级金属控制）被巴斯夫/三菱化学/关东电化垄断；国产晶瑞/江化微 G2–G4 放量、整体国产化率提升快，高端 G5 仍依赖进口", ms:[{t:"1990s",tag:"intl",e:"巴斯夫/三菱化学/关东电化垄断 G5 级",d:"G5 级（ppt 级金属控制）湿电子化学品被欧美日企业垄断。",i:"高端湿化学品卡脖子成型。",s:"行业研报",u:"https://www.semi.org"},{t:"2010s",tag:"dom",e:"晶瑞电材/江化微 G2-G4 放量",d:"国产高纯试剂在 G2-G4 级批量供应，进入主流产线。",i:"中端湿化学品自主。",s:"公司年报",u:"https://www.cninfo.com.cn"},{t:"2025",tag:"dom",e:"G5 级验证中",d:"G5 级（ppt 级金属控制）仍在验证，高端依赖进口。",i:"湿化学品卡脖子等级高。",s:"中国电子材料行业协会",u:"http://www.csia.net.cn"}], routes:[{n:"高纯试剂精馏提纯路线",i:"国际（巴斯夫/三菱化学/关东电化）：G5 级（ppt 级金属）垄断",d:"国产（晶瑞电材/江化微）：G2-G4 放量，G5 验证中",s:"精馏/亚沸蒸馏/膜过滤提纯",f:"ppt 级金属控制、分析检测能力",ip:"G5 级量产",dc:"高端 G5 依赖进口",dp:"中端放量"}]}
+};
+
+/* ===== 渲染：筛选条 ===== */
+var FILTERS = [
+  {k:"all", name:"全部"},
+  {k:"3", name:"极高"},
+  {k:"2", name:"高"},
+  {k:"1", name:"中高"},
+  {k:"0", name:"基本自主"}
+];
+var allNodes = NODES.concat(MATS);
+var filterKey = "all";
+var selId = null;
+
+function countSev(k){return allNodes.filter(function(n){return n.sev===k}).length;}
+
+function renderFilter(){
+  var bar = document.getElementById("filterBar");
+  var html = '<span class="fl">风险筛选</span>';
+  FILTERS.forEach(function(f){
+    var cnt = f.k==="all" ? allNodes.length : countSev(parseInt(f.k,10));
+    html += '<button class="chip'+(filterKey===f.k?" on":"")+'" data-f="'+f.k+'">'+f.name+'<span class="cnt">'+cnt+'</span></button>';
+  });
+  bar.innerHTML = html;
+  bar.querySelectorAll(".chip").forEach(function(c){
+    c.addEventListener("click", function(){
+      filterKey = c.getAttribute("data-f");
+      renderFilter(); renderFlow(); applyFilter();
+    });
+  });
+}
+
+function passes(n){
+  return filterKey==="all" || String(n.sev)===filterKey;
+}
+
+/* ===== 渲染：流程图 ===== */
+function renderFlow(){
+  var row = document.getElementById("stageRow");
+  var WIDE = window.innerWidth>1023;
+  var html = "";
+  STAGES.forEach(function(st, i){
+    html += '<div class="stage-col'+(WIDE?' w-'+st.id:'')+'">';
+    html += '<div class="stage-head" id="st-'+st.id+'">'+st.name+'</div>';
+    html += '<div class="stage-body">';
+    NODES.filter(function(n){return n.stage===st.id;}).forEach(function(n){
+      html += nodeHTML(n, "node");
+    });
+    if(st.id==="fab2"){
+      html += '<div class="loop-note">光刻 → 刻蚀/沉积 → CMP 循环数十次，逐层堆叠出纳米级电路（3D 结构）</div>';
+    }
+    html += '</div></div>';
+  });
+  row.innerHTML = html;
+  row.querySelectorAll(".node,.mat").forEach(bindNode);
+
+  var mg = document.getElementById("matGrid");
+  mg.style.gridTemplateColumns = STAGES.map(function(st){ return (WIDE?({raw:1,design:1.2,fab:1.25,fab2:1.15,asm:1,final:1.05,app:1.15})[st.id]:1)+"fr"; }).join(" ");
+  var mhtml = "";
+  MATS.forEach(function(m, mi){
+    var used = {};
+    (m.cols||[]).forEach(function(c){ used[c]=1; });
+    var segs = [];
+    var runStart = null;
+    for(var ci=0; ci<STAGES.length; ci++){
+      if(used[STAGES[ci].id]){
+        if(runStart===null) runStart = ci;
+      }else if(runStart!==null){
+        segs.push({from:runStart, span:ci-runStart});
+        runStart = null;
+      }
+    }
+    if(runStart!==null) segs.push({from:runStart, span:STAGES.length-runStart});
+    var pos = 0;
+    segs.forEach(function(seg){
+      if(seg.from > pos){
+        mhtml += '<div class="mat-link" style="grid-row:'+(mi+1)+';grid-column:'+(pos+1)+' / span '+(seg.from-pos)+'">┄</div>';
+      }
+      var gc = seg.span>1 ? (seg.from+1)+' / span '+seg.span : (seg.from+1)+'';
+      mhtml += nodeHTML(m, "mat").replace(' class="mat', ' style="grid-row:'+(mi+1)+';grid-column:'+gc+'" class="mat');
+      pos = seg.from + seg.span;
+    });
+  });
+  mg.innerHTML = mhtml;
+  mg.querySelectorAll(".mat").forEach(bindNode);
+}
+
+function nodeHTML(n, cls){
+  var sv = SEV.find(function(s){return s.k===n.sev;});
+  return '<div class="'+cls+' sev'+n.sev+(n.upd?' has-upd':'')+'" data-id="'+n.id+'" tabindex="0" role="button" aria-label="'+n.name+'">'+
+    (n.upd?'<span class="upd-badge" title="'+n.upd+'">更新</span>':'')+
+    '<div class="node-top"><span class="lvl sev'+n.sev+'">'+sv.name+'</span><span class="nm">'+n.name+'</span></div>'+
+    (n.sub ? '<div class="node-sub">'+n.sub+'</div>' : '')+
+    '<div class="node-sup">'+n.sup+'</div>'+
+    '</div>';
+}
+
+function bindNode(el){
+  function act(){
+    var id = el.getAttribute("data-id");
+    if(selId===id){ closePanel(); return; }
+    selId = id; showPanel(id);
+  }
+  el.addEventListener("click", act);
+  el.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); act(); }});
+}
+
+function applyFilter(){
+  document.querySelectorAll(".node,.mat").forEach(function(el){
+    var id = el.getAttribute("data-id");
+    var n = allNodes.find(function(x){return x.id===id;});
+    var pass = passes(n);
+    el.classList.toggle("off", !pass);
+    el.classList.toggle("sel", pass && selId===id);
+  });
+}
+
+/* ===== 渲染：详情面板 ===== */
+function fmtPct(v){
+  if(v===null||v===undefined) return null;
+  return (v>0?"+":"")+v.toFixed(1)+"%";
+}
+function coCard(k){
+  var o = COS[k]; if(!o) return "";
+  var cCls = (o.c===null||o.c===undefined) ? "co-na" : (o.c>0?"co-up":"co-dn");
+  var cTxt = (o.c===null||o.c===undefined) ? "—" : (o.c>0?"▲ +":"▼ ")+Math.abs(o.c).toFixed(1)+"%";
+  var yTxt = (o.y===null||o.y===undefined) ? '<span class="co-na">年内 —</span>' : '<span class="'+(o.y>0?"co-up":"co-dn")+'">年内 '+(o.y>0?"▲ +":"▼ ")+Math.abs(o.y).toFixed(1)+"%</span>";
+  var meta = "";
+  if(o.pe){ meta += '<span class="co-x">PE '+o.pe+'</span>'; }
+  if(o.cap){ meta += '<span class="co-x">'+o.cap+'</span>'; }
+  return '<div class="co">'+
+    '<div class="co-t"><span class="co-n">'+o.n+(o.upd?'<span class="co-new" title="'+o.upd+'">新</span>':'')+'</span><span class="co-m">'+o.m+'</span></div>'+
+    '<div class="co-q"><span class="co-p">'+(o.p||"—")+'</span><span class="co-c '+cCls+'">'+cTxt+'</span></div>'+
+    '<div class="co-trend">'+yTxt+meta+'</div>'+
+    '<div class="co-tech"><b>技术路线</b>'+o.tech+'</div>'+
+    '<div class="co-d">'+o.d+'</div>'+
+  '</div>';
+}
+function cmpCol(list, label, cls){
+  var html = '<div class="cmp-c"><div class="cmp-h '+cls+'">'+label+'<small>'+(cls==="intl"?"垄断方/主要供给":"对标企业")+'</small><span class="cnt">'+list.length+'</span></div>';
+  if(list.length===0){
+    html += '<div class="co-none">该环节以国产/国内为主导，无国际垄断供应商</div>';
+  }else{
+    list.forEach(function(k){ html += coCard(k); });
+  }
+  return html+'</div>';
+}
+function cmpHTML(id){
+  var c = CMP[id]; if(!c) return "";
+  return '<div class="pblock cmp-b"><h4>国际供应商 vs 国产替代<span class="cmp-note">行情 2026-10-16 收盘</span></h4>'+
+    '<div class="cmp-g">'+cmpCol(c.intl,"国际供应商","intl")+cmpCol(c.dom,"国产替代","dom")+'</div></div>';
+}
+
+function routeHTML(id){
+  var r = ROUTE[id];
+  if(!r) return "";
+  var n = allNodes.find(function(x){return x.id===id;}) || MATS.find(function(x){return x.id===id;});
+  var tag = r.route==="diff" ? "路线分野" : "技术路线相同 · 对比进程";
+  return (
+    '<div class="route-head"><span class="ln"></span><b>'+(n?n.name:"")+'</b> · 国际 vs 国产技术路线对比<span class="rt-tag">'+tag+'</span></div>'+
+    '<div class="route-grid">'+
+      '<div class="rt rt-intl"><h5>国际技术路线（总览）</h5><p>'+r.intl+'</p></div>'+
+      '<div class="rt rt-dom"><h5>国产技术路线（总览）</h5><p>'+r.dom+'</p></div>'+
+      '<div class="rt rt-routecmp"><h5>技术路线对比 · 逐路线分析（'+(r.routes||[]).length+' 条路线，国际/国产分别对照）</h5>'+
+        (r.routes||[]).map(function(rt,i){
+          var s='<div class="rr"><div class="rr-name">路线'+(i+1)+' · '+rt.n+'</div>';
+          s+='<div class="rr-row rr-intl"><span class="rr-tag">国际</span>'+rt.i+'</div>';
+          s+='<div class="rr-row rr-dom"><span class="rr-tag">国产</span>'+rt.d+'</div>';
+          s+='<div class="rr-same">相同点：'+rt.s+'</div>';
+          s+='<div class="rr-diff">不同点：'+rt.f+'</div>';
+          s+='<div class="rr-pros">国际优势（技术）：'+rt.ip+'</div>';
+          if(rt.ic)s+='<div class="rr-pros rr-ic">国际短板（技术）：'+rt.ic+'</div>';
+          if(rt.dp)s+='<div class="rr-pros rr-dp">国产优势（技术）：'+rt.dp+'</div>';
+          s+='<div class="rr-cons">国产短板（技术）：'+rt.dc+'</div>';
+          return s+'</div>';
+        }).join('')+
+      '</div>'+
+      '<div class="rt rt-mkt"><h5>市场调研与分析</h5><p>'+r.mkt+'</p></div>'+
+      '<div class="rt rt-stage"><h5>发展进程与阶段 · 时间轴（国际蓝 / 国产绿）</h5><p>'+r.stage+'</p>'+
+        '<div class="tl">'+(r.ms||[]).map(function(m){
+          var tag = m.tag==="dom" ? "dom" : "intl";
+          var lab = m.tag==="dom" ? "国产" : "国际";
+          return '<div class="tl-itm '+tag+(m.n?' tl-new':'')+'"><div class="tl-time">'+m.t+'</div><div class="tl-rail"><span class="tl-dot"></span></div>'+
+            '<div class="tl-body"><div class="tl-e">'+(m.n?'<span class="tl-new-tag">新</span>':'')+'<span class="tl-tag '+tag+'">'+lab+'</span>'+m.e+'</div>'+
+            '<div class="tl-d">'+m.d+'</div>'+
+            '<div class="tl-i">影响：'+m.i+'</div>'+
+            '<div class="tl-s">信源：'+m.s+(m.u?' <a href="'+m.u+'" target="_blank" rel="noopener">相关链接 ↗</a>':'')+'</div></div></div>';
+        }).join('')+'</div>'+
+      '</div>'+
+    '</div>'
+  );
+}
+
+function renderRoute(id){
+  var box = document.getElementById("routePanel");
+  var r = ROUTE[id];
+  if(!r){ box.hidden = true; return; }
+  box.innerHTML = routeHTML(id);
+  box.hidden = false;
+}
+
+function showPanel(id){
+  var n = allNodes.find(function(x){return x.id===id;});
+  if(!n) return;
+  var st = STAGES.find(function(s){return s.id===n.stage;});
+  var sv = SEV.find(function(s){return s.k===n.sev;});
+  var body = document.getElementById("panelBody");
+  var empty = document.getElementById("panelEmpty");
+  var headTech = '';
+  headTech += '<div class="panel-head"><span class="lvl sev'+n.sev+'">'+sv.name+'风险</span><h3>'+n.name+'</h3><button class="panel-close" aria-label="关闭">×</button></div>';
+  headTech += '<div class="panel-stage">'+(st?st.name:"关键材料")+' · 供应链环节</div>';
+  headTech += (n.upd?'<div class="upd-note">本轮更新：<b>'+n.upd+'</b>（详见下方「技术路线对比 · 发展进程时间轴」与公司档案）</div>':'');
+  headTech += '<div class="pblock"><h4>环节说明</h4><p>'+n.role+'</p>'+
+    (n.why?'<p class="why">为什么需要这个环节：'+n.why+'</p>':'')+
+    ((n.terms&&n.terms.length)?'<div class="terms">'+n.terms.map(function(t){return '<div class="term"><b>'+t.t+'</b><span>'+t.d+'</span></div>';}).join('')+'</div>':'')+
+    '</div>';
+  headTech += '<div class="pblock"><h4>卡脖子技术</h4><p>'+n.tech+'</p></div>';
+  var supply = '<div class="pblock"><h4>国际供应商</h4><div class="sup-list">';
+  var newCoKeys = Object.keys(COS).filter(function(k){ return COS[k].upd; });
+  n.suppliers.forEach(function(s){
+    var nm = s.replace(/（.*/,"").trim();
+    var isNew = newCoKeys.some(function(k){ return COS[k].n.indexOf(nm)>=0 || nm.indexOf(COS[k].n.replace(/（.*/,"").trim())>=0; });
+    supply += '<span class="sup-chip'+(isNew?' sup-new':'')+'">'+s+(isNew?'<i class="sup-new-tag">新</i>':'')+'</span>';
+  });
+  supply += '</div></div>';
+  supply += '<div class="pblock"><div class="prog"><b>国产替代进展</b>'+n.prog+'</div></div>';
+  supply += cmpHTML(id);
+  supply += '<div class="pblock"><h4>备注</h4><p>'+n.note+'</p></div>';
+  var tabs = document.getElementById("panelTabs");
+  if(window.innerWidth > 1023){
+    // 桌面端：详情面板保持原顺序（含供应商），技术路线区在流程下方
+    body.innerHTML = headTech + supply;
+    renderRoute(id);
+    document.getElementById("routePanel").hidden = false;
+    if(tabs) tabs.style.display = "none";
+  } else {
+    // 移动端：详情 tab = 说明+卡脖子+技术路线时间轴；供应商 tab = 国际供应商及以下
+    body.innerHTML = headTech + routeHTML(id);
+    document.getElementById("routePanel").innerHTML = supply;
+    document.getElementById("routePanel").hidden = true;
+    if(tabs){ tabs.style.display = "flex"; setTab("detail"); }
+  }
+  body.style.display = "block";
+  empty.style.display = "none";
+  var panel = document.getElementById("panel");
+  panel.classList.add("open");
+  document.getElementById("mask").classList.add("on");
+  body.querySelector(".panel-close").addEventListener("click", closePanel);
+  document.querySelectorAll(".node,.mat").forEach(function(el){
+    el.classList.toggle("sel", el.getAttribute("data-id")===id);
+  });
+}
+
+function placeRoutePanel(){
+  var rp = document.getElementById("routePanel");
+  if(!rp) return;
+  var wide = window.innerWidth > 1023;
+  var flow = document.querySelector(".flow");
+  var panelBox = document.getElementById("panel");
+  if(wide && rp.parentNode !== flow){
+    flow.appendChild(rp);
+  } else if(!wide && rp.parentNode !== panelBox){
+    panelBox.appendChild(rp);
+  }
+}
+
+function setTab(which){
+  var body = document.getElementById("panelBody");
+  var rp = document.getElementById("routePanel");
+  var tabs = document.getElementById("panelTabs");
+  if(!tabs) return;
+  tabs.querySelectorAll(".ptab").forEach(function(b){
+    b.classList.toggle("on", b.getAttribute("data-tab")===which);
+  });
+  if(which==="route"){
+    body.style.display = "none";
+    rp.hidden = false;
+  } else {
+    rp.hidden = true;
+    body.style.display = "block";
+  }
+}
+
+function closePanel(){
+  selId = null;
+  document.getElementById("panel").classList.remove("open");
+  document.getElementById("mask").classList.remove("on");
+  document.getElementById("routePanel").hidden = true;
+  var tabs = document.getElementById("panelTabs");
+  if(tabs) tabs.style.display = "none";
+  document.querySelectorAll(".node,.mat").forEach(function(el){ el.classList.remove("sel"); });
+}
+
+/* ===== 阶段跳转 & 统计 ===== */
+function renderJump(){
+  var bar = document.getElementById("jumpBar");
+  var html = "";
+  STAGES.forEach(function(st){
+    html += '<button data-target="st-'+st.id+'">'+st.name+'</button>';
+  });
+  bar.innerHTML = html;
+  bar.querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){
+      var t = document.getElementById(b.getAttribute("data-target"));
+      if(t) t.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+}
+
+function renderStats(){
+  var box = document.getElementById("heroStats");
+  var unique = {};
+  allNodes.forEach(function(n){ n.suppliers.forEach(function(s){ unique[s]=1; }); });
+  var supN = Object.keys(unique).length;
+  var html = '';
+  html += '<div class="hstat"><b>'+allNodes.length+'<span> 道环节</span></b><small>原材料 → 成品下游全流程</small></div>';
+  html += '<div class="hstat"><b>'+countSev(3)+'<span> 项</span></b><small>极高风险卡脖子点</small></div>';
+  html += '<div class="hstat"><b>'+supN+'<span> 家</span></b><small>国际供应商（去重）</small></div>';
+  box.innerHTML = html;
+}
+
+/* ===== 初始化 ===== */
+document.getElementById("mask").addEventListener("click", closePanel);
+renderStats(); renderFilter(); renderFlow(); applyFilter();
+placeRoutePanel();
+window.addEventListener("resize", function(){
+  placeRoutePanel();
+  if(selId){
+    if(window.innerWidth > 1023){
+      document.getElementById("panelBody").style.display = "block";
+      document.getElementById("routePanel").hidden = false;
+    } else {
+      setTab("detail");
+    }
+  }
+});
+
+window.setTab = setTab;
+})();
+</script>
+</body>
+</html>
