@@ -40,11 +40,11 @@
   .pnote{font-size:12px;color:#94a3b8;margin-top:2px;}
   .pwhy{font-size:13px;line-height:1.65;background:#f1f5f9;border-left:3px solid #64748b;border-radius:6px;padding:7px 10px;margin-top:6px;color:#334155;}
   .pwhy b{color:#1f2937;}
-  .tl{position:relative;margin-top:8px;padding-left:60px;}
-  .tl::before{content:'';position:absolute;left:20px;top:10px;bottom:10px;width:2px;background:#e2e8f0;}
-  .card{margin:0 0 12px;padding:8px 10px;background:#fff;border:1px solid #f1f5f9;border-radius:6px;position:relative;}
-  .tl-year{position:absolute;left:-52px;top:6px;width:48px;text-align:right;font-size:12.5px;font-weight:700;color:#475569;}
-  .tl-dot{position:absolute;left:-45px;top:10px;width:12px;height:12px;border-radius:50%;background:#6366f1;border:2px solid #fff;box-shadow:0 0 0 2px #c7d2fe;}
+  .tl{position:relative;margin-top:8px;padding-left:100px;}
+  .tl::before{content:'';position:absolute;left:72px;top:10px;bottom:10px;width:2px;background:#e2e8f0;}
+  .card{margin:0 0 12px;padding:8px 10px;background:#fff;border:1px solid #f1f5f9;border-radius:6px;position:relative;cursor:pointer;transition:border-color .15s,box-shadow .15s;}
+  .tl-year{position:absolute;left:-84px;top:6px;width:46px;text-align:right;font-size:12px;font-weight:700;color:#475569;white-space:nowrap;}
+  .tl-dot{position:absolute;left:-34px;top:10px;width:12px;height:12px;border-radius:50%;background:#6366f1;border:2px solid #fff;box-shadow:0 0 0 2px #c7d2fe;}
   .card-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap;}
   .card-name{font-weight:700;font-size:14.5px;color:#0f172a;}
   .tag{font-size:12px;color:#64748b;white-space:nowrap;}
@@ -59,6 +59,19 @@
   .fp-google{background:#EA4335;} .fp-xai{background:#1F2937;} .fp-moonshot{background:#8B5CF6;}
   .fp-qwen{background:#F97316;} .fp-other{background:#64748B;}
   .note{font-size:12px;color:#64748b;background:#fff;border:1px dashed #cbd5e1;border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.6;}
+  .card:hover{border-color:#a5b4fc;box-shadow:0 1px 6px rgba(99,102,241,.14);}
+  .card-sel{border:2px solid #6366f1;background:#eef2ff;}
+  .pdetail{margin-top:10px;border:1px solid #e2e8f0;border-radius:12px;padding:12px;background:#f8fafc;}
+  .pd-hint{font-size:12.5px;color:#475569;background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:6px 10px;margin-bottom:10px;line-height:1.5;}
+  .pd-head{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px;}
+  .pd-meta{font-size:12px;color:#64748b;margin-bottom:6px;}
+  .pd-row{margin-top:8px;font-size:13px;line-height:1.65;color:#334155;}
+  .pd-row>span.b{display:block;font-weight:700;color:#1e40af;margin-bottom:3px;}
+  .pd-term,.pd-player{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:6px 9px;margin-top:6px;font-size:12.5px;line-height:1.6;}
+  .pd-term b{color:#4338ca;}
+  .pd-player b{color:#4338ca;}
+  .pd-player .pd-path{display:block;color:#64748b;font-size:11.5px;margin-top:1px;}
+  .pd-player p{margin:3px 0 0;color:#334155;}
   .block{cursor:pointer;}
   .block:focus{outline:none;}
   .block:hover .bx{stroke-width:3.2;}
@@ -1076,6 +1089,19 @@ window.setTab = setTab;
   <div class="guide">交互说明：① 每个模块附有"为什么需要这个模块"的职责简介，模块内论文按<b>时间轴（早→晚）</b>排列，展示技术演进脉络，每篇给出"为什么需要它"与"创新与优势"；② 点击流程图中的任意模块 → 右侧<b>只显示</b>该模块；③ 点击模型家族标签 → 按来源筛选；④ 点击"← 返回全部模块"或再次点击模块 → 恢复全部。</div>
   <div class="wrap">
     <div class="fig">
+<div class="tl-overview">
+        <div class="tl-o-title">整体技术演进总览（2017 → 2026）</div>
+        <div class="tl-o">
+          <div class="tl-o-node"><b>2017</b>自注意力基座：Transformer 提出</div>
+          <div class="tl-o-node"><b>2019</b>训练稳定与高效头：Pre-Norm / RMSNorm / MQA</div>
+          <div class="tl-o-node"><b>2020–21</b>表达与稀疏化：SwiGLU / Switch MoE / RoPE / ALiBi / Perceiver</div>
+          <div class="tl-o-node"><b>2022</b>对齐与高效注意力：RLHF / FlashAttention / GQA / Flamingo</div>
+          <div class="tl-o-node"><b>2023</b>长上下文与偏好优化：SWA / Ring / PI·YaRN / DPO / PagedAttention</div>
+          <div class="tl-o-node"><b>2024</b>稀疏化与缓存革命：MLA / DeepSeekMoE / MTP / Mooncake / 百万上下文</div>
+          <div class="tl-o-node"><b>2025</b>推理与强化学习：GRPO / 长思维链 / Qwen3 MoE</div>
+          <div class="tl-o-node"><b>2026</b>残差革命与架构重构：Attention Residuals / Kimi Linear</div>
+        </div>
+
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1050" style="font-family:inherit;">
         <defs>
           <marker id="arrowGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
@@ -1241,7 +1267,11 @@ window.setTab = setTab;
         <g class="badge" data-badge="train" pointer-events="none"><circle cx="1056" cy="942" r="12" fill="#fff" stroke="#64748b" stroke-width="1.5"/><text x="1056" y="947" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">5</text></g>
         <g class="badge" data-badge="infer" pointer-events="none"><circle cx="1056" cy="998" r="12" fill="#fff" stroke="#64748b" stroke-width="1.5"/><text x="1056" y="1003" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">4</text></g>
       </svg>
-      <div class="figcap">点击任意模块查看对应论文时间轴（只显示该模块）· 数字徽标 = 当前筛选下该模块命中的论文数 · N 为层数（原论文 N=6）</div>
+      <div class="figcap">点击任意模块查看对应论文时间轴（只显示该模块）· 数字徽标 = 当前筛选下该模块命中的论文数 · N 为层数（原论文 N=6）      <div class="pdetail" id="paperDetail">
+        <div class="pd-hint">点击右侧任意论文卡片（如 MQA 多查询注意力），这里展示<b>通俗解读 · 突破与成果 · 专业词汇解释 · 各公司贡献与技术路径</b></div>
+        <div id="pdBody"><div class="pd-head">多模态 Token 编码</div><div class="pd-row"><span class="b">通俗解读</span>让原本只会读文字的 Transformer 学会"看图、听声音"：把图片切成小块、音频切成片段，各自转成模型能读的数字编码，再和文字混在一起喂给模型，从此文字、图像、视频共用一个大脑。</div><div class="pd-row"><span class="b">突破与成果</span>打破了大模型"只能吃文字"的限制，催生了 GPT-4V、Gemini、Claude、Qwen-VL、Kimi-VL 等一批能识图、看视频的多模态模型，也让"图生文、文生图、音视频理解"成为今天 AI 产品的标配能力。</div><div class="pd-row"><span class="b">专业词汇解释</span><div class="pd-term"><b>视觉编码器</b> — 把整张图像压缩成一组特征向量的神经网络，相当于模型的"眼睛"前段</div><div class="pd-term"><b>投影层</b> — 把视觉特征的维度对齐到文字向量空间的线性变换，让两种模态能"对话"</div><div class="pd-term"><b>Token</b> — 模型处理信息的基本单元，文字按词/子词切分，图像按块切分</div></div><div class="pd-row"><span class="b">各公司贡献与技术路径</span><div class="pd-player"><b>OpenAI</b><span class="pd-path">GPT-4V：视觉编码器 + 投影层接到文本主干</span><p>率先在旗舰闭源模型上开放图像输入，确立"外挂视觉编码器"的主流做法</p></div><div class="pd-player"><b>Google</b><span class="pd-path">Gemini：多模态从零联合训练</span><p>验证"原生多模态"路线：从一开始就混合训练文本/图像/音频</p></div><div class="pd-player"><b>Alibaba</b><span class="pd-path">Qwen-VL：开源视觉语言模型</span><p>把多模态能力开源，成为社区研究和二次开发的基座</p></div><div class="pd-player"><b>Moonshot</b><span class="pd-path">Kimi-VL：长文本与视觉融合</span><p>把多模态与超长上下文结合，主打"长文档+图"场景</p></div><div class="pd-player"><b>Anthropic</b><span class="pd-path">Claude：视觉输入 + 强推理</span><p>多模态输入与深度推理结合，强调图像理解中的逻辑能力</p></div></div></div>
+      </div>
+</div>
     </div>
 
     <div class="panel">
@@ -1250,18 +1280,6 @@ window.setTab = setTab;
         <button class="back" id="backBtn" type="button" style="display:none;">← 返回全部模块</button>
       </div>
 
-      <div class="tl-overview">
-        <div class="tl-o-title">整体技术演进总览（2017 → 2026）</div>
-        <div class="tl-o">
-          <div class="tl-o-node"><b>2017</b>自注意力基座：Transformer 提出</div>
-          <div class="tl-o-node"><b>2019</b>训练稳定与高效头：Pre-Norm / RMSNorm / MQA</div>
-          <div class="tl-o-node"><b>2020–21</b>表达与稀疏化：SwiGLU / Switch MoE / RoPE / ALiBi / Perceiver</div>
-          <div class="tl-o-node"><b>2022</b>对齐与高效注意力：RLHF / FlashAttention / GQA / Flamingo</div>
-          <div class="tl-o-node"><b>2023</b>长上下文与偏好优化：SWA / Ring / PI·YaRN / DPO / PagedAttention</div>
-          <div class="tl-o-node"><b>2024</b>稀疏化与缓存革命：MLA / DeepSeekMoE / MTP / Mooncake / 百万上下文</div>
-          <div class="tl-o-node"><b>2025</b>推理与强化学习：GRPO / 长思维链 / Qwen3 MoE</div>
-          <div class="tl-o-node"><b>2026</b>残差革命与架构重构：Attention Residuals / Kimi Linear</div>
-        </div>
       </div>
 
       <div class="pgroup" data-group="input">
@@ -1269,7 +1287,7 @@ window.setTab = setTab;
         <div class="pnote">Input &amp; Embedding · 多模态输入在此接入</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>Transformer 无法直接处理文字，必须先把离散 token（词/子词）映射为稠密向量，作为全模型统一的数值输入。它决定了"信息以什么形式进入网络"。<b>创新方向：</b>多模态信号接入（视觉/音频编码）、共享嵌入省参数。</div>
         <div class="tl">
-          <div class="card" data-group="input" data-source="openai,google,qwen,moonshot,anthropic">
+          <div class="card" data-key="multimodal-token" data-group="input" data-source="openai,google,qwen,moonshot,anthropic">
             <span class="tl-year">2022–25</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">多模态 Token 编码</span><span class="tag">GPT-4V / Gemini / Qwen-VL / Kimi-VL / Claude</span></div>
@@ -1285,7 +1303,7 @@ window.setTab = setTab;
         <div class="pnote">Positional Encoding · 解决注意力"无序"问题</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>注意力对输入"一视同仁"，交换任意两个 token 的位置它都看不出区别；语言却高度依赖词序。位置编码就是给每个 token 注入"位置标签"，让模型知道先后关系。<b>创新方向：</b>让位置表达更合理（相对位置）、支持上下文外推与超长序列。</div>
         <div class="tl">
-          <div class="card" data-group="pos" data-source="other">
+          <div class="card" data-key="rope" data-group="pos" data-source="other">
             <span class="tl-year">2021</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">RoPE 旋转位置编码</span><span class="tag">RoFormer 2021（DeepSeek / Qwen / Kimi / Grok-1 采用）</span></div>
@@ -1293,7 +1311,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把位置信息编码成 Q/K 向量的旋转角度，点积后自动携带相对位置；无需学习参数、外推性好，成为 DeepSeek / Qwen / Kimi / Grok-1 等的主流选择。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="pos" data-source="other">
+          <div class="card" data-key="alibi" data-group="pos" data-source="other">
             <span class="tl-year">2021</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">ALiBi 线性偏置</span><span class="tag">Press et al. 2021</span></div>
@@ -1301,7 +1319,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>干脆不注入位置向量，按 token 距离给注意力分数加线性惩罚；实现"训练短文本、推理长文本"，外推简单高效。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="pos" data-source="other">
+          <div class="card" data-key="yarn" data-group="pos" data-source="other">
             <span class="tl-year">2023</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">位置插值 / YaRN</span><span class="tag">Chen et al. 2023 / Peng et al. 2023（DeepSeek-V3 128K 采用）</span></div>
@@ -1317,7 +1335,7 @@ window.setTab = setTab;
         <div class="pnote">Self-Attention · 含编码器自注意力与解码器掩码自注意力</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>它是 Transformer 的"核心引擎"：让每个 token 与序列中所有 token 两两交互，按相关性加权聚合信息，解决"谁和谁相关"的长距离依赖问题（取代 RNN 的串行递归）。代价是 O(n²) 计算与 KV 缓存开销。<b>创新方向：</b>省缓存（GQA/MQA/MLA）、省计算（FlashAttention/滑动窗口）、超长序列并行（Ring Attention）。</div>
         <div class="tl">
-          <div class="card" data-group="attn" data-source="google">
+          <div class="card" data-key="mqa" data-group="attn" data-source="google">
             <span class="tl-year">2019</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">MQA 多查询注意力</span><span class="tag">Shazeer 2019（PaLM 等采用）</span></div>
@@ -1325,7 +1343,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>所有 Q 头共享同一组 K/V，缓存降为 MHA 的 1/头数、解码最快；代价是少量质量损失，大模型早期常用。</div>
             <div class="card-src"><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="attn" data-source="other">
+          <div class="card" data-key="flashattn" data-group="attn" data-source="other">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">FlashAttention</span><span class="tag">Dao et al. 2022 / FlashAttention-2 2023（所有主流模型）</span></div>
@@ -1333,7 +1351,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>IO 感知的分块计算 + 在线 Softmax，不物化完整矩阵；省显存、快数倍，成为高效训练与长上下文的地基。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="attn" data-source="google">
+          <div class="card" data-key="gqa" data-group="attn" data-source="google">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">GQA 分组查询注意力</span><span class="tag">Google 2022（LLaMA-2 / Qwen2 / Gemma / Qwen3 采用）</span></div>
@@ -1341,7 +1359,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把 Q 头分组、每组共享一份 K/V（Qwen3-235B：64 个 Q 头 / 4 个 KV 头），缓存与带宽显著下降，质量接近 MHA，成为事实标准。</div>
             <div class="card-src"><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="attn" data-source="other">
+          <div class="card" data-key="ring" data-group="attn" data-source="other">
             <span class="tl-year">2023</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Ring Attention</span><span class="tag">Liu et al. 2023</span></div>
@@ -1349,7 +1367,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把序列分块在多设备间环形传递并行计算，让百万级 token 上下文训练成为可能（Gemini 1.5 类长上下文的关键技术）。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="attn" data-source="other">
+          <div class="card" data-key="swa" data-group="attn" data-source="other">
             <span class="tl-year">2023</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">滑动窗口注意力 SWA</span><span class="tag">Mistral 2023（Qwen3-Next 混合注意力）</span></div>
@@ -1357,7 +1375,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>每 token 只看窗口内邻居，计算降到 O(n)；与全局注意力交替成"混合注意力"，兼顾局部细节与全局信息。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="attn" data-source="deepseek">
+          <div class="card" data-key="mla" data-group="attn" data-source="deepseek">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">MLA 多头潜在注意力</span><span class="tag">DeepSeek-V2 2024（DeepSeek-V3 / Kimi K2 采用）</span></div>
@@ -1373,7 +1391,7 @@ window.setTab = setTab;
         <div class="pnote">Cross-Attention · 解码器读取编码器输出（Q 来自解码器，K/V 来自编码器）</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>它是解码器与编码器之间的"桥梁"：Q 来自已生成部分，K/V 来自编码器输出，把源信息的语义按需注入生成过程（翻译、摘要、多模态对齐的核心）。<b>创新方向：</b>门控注入控制"多少信息进来"、潜在数组压缩输入以控制成本。</div>
         <div class="tl">
-          <div class="card" data-group="cross" data-source="google">
+          <div class="card" data-key="perceiver" data-group="cross" data-source="google">
             <span class="tl-year">2021</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Perceiver 潜在数组</span><span class="tag">DeepMind 2021</span></div>
@@ -1381,7 +1399,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>用固定大小的"潜在数组"压缩输入再做交叉注意力，计算量与输入长度解耦，适合多模态长输入。</div>
             <div class="card-src"><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="cross" data-source="google">
+          <div class="card" data-key="flamingo" data-group="cross" data-source="google">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">门控交叉注意力</span><span class="tag">Flamingo（DeepMind）2022</span></div>
@@ -1397,7 +1415,7 @@ window.setTab = setTab;
         <div class="pnote">Feed-Forward &amp; MoE · 参数扩大但计算不变的稀疏化方向</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>注意力本质是线性加权，表达能力有限；FFN 对每个位置独立做非线性变换，负责"存储与回忆知识"。它是模型中参数量最大的部分。<b>创新方向：</b>激活函数升级（SwiGLU）、专家化稀疏（MoE：参数变大而每 token 计算不涨）。</div>
         <div class="tl">
-          <div class="card" data-group="ffn" data-source="other">
+          <div class="card" data-key="swiglu" data-group="ffn" data-source="other">
             <span class="tl-year">2020</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">SwiGLU 门控激活</span><span class="tag">Shazeer 2020（LLaMA / Qwen / DeepSeek / Kimi 采用）</span></div>
@@ -1405,7 +1423,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>引入可学习门控（GLU 变体）提升表达与训练效率；如今几乎是所有新模型 FFN 的默认激活。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="ffn" data-source="google">
+          <div class="card" data-key="switch-moe" data-group="ffn" data-source="google">
             <span class="tl-year">2021</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">MoE 稀疏专家</span><span class="tag">Switch Transformer 2021（MoE 范式）</span></div>
@@ -1413,7 +1431,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把 FFN 拆成多个"专家"、路由只激活少量专家，参数量大幅增加而每 token 算力几乎不变；Gemini 1.5 等均沿用。</div>
             <div class="card-src"><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="ffn" data-source="google">
+          <div class="card" data-key="gemini15-moe" data-group="ffn" data-source="google">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Gemini 1.5 稀疏 MoE</span><span class="tag">Google 2024</span></div>
@@ -1421,7 +1439,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>稀疏 MoE Transformer 支撑 100 万 token 上下文与多模态；官方技术报告对内部细节披露有限，但确立了"稀疏 + 超长上下文"的产品方向。</div>
             <div class="card-src"><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="ffn" data-source="xai">
+          <div class="card" data-key="grok1" data-group="ffn" data-source="xai">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Grok-1 八专家 MoE</span><span class="tag">xAI 2024 开源权重</span></div>
@@ -1429,7 +1447,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>314B 参数、64 层、8 个专家每 token 激活 2 个、上下文 8K；全量开源权重，是早期超大 MoE 的工程样板。</div>
             <div class="card-src"><span class="fpill fp-xai">xAI</span></div>
           </div>
-          <div class="card" data-group="ffn" data-source="deepseek">
+          <div class="card" data-key="deepseek-moe" data-group="ffn" data-source="deepseek">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">DeepSeekMoE</span><span class="tag">DeepSeek-V2 2024（V3 沿用）</span></div>
@@ -1437,7 +1455,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>细粒度专家 + 共享专家 + 无辅助损失负载均衡（V3），路由更均衡、训练更稳；V3 为 671B 总参 / 37B 激活。</div>
             <div class="card-src"><span class="fpill fp-deepseek">DeepSeek</span></div>
           </div>
-          <div class="card" data-group="ffn" data-source="qwen">
+          <div class="card" data-key="qwen3-moe" data-group="ffn" data-source="qwen">
             <span class="tl-year">2025</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Qwen3 MoE</span><span class="tag">Alibaba 2025</span></div>
@@ -1453,7 +1471,7 @@ window.setTab = setTab;
         <div class="pnote">Residual &amp; Normalization · 深层网络训练的稳定性来源</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>模型要堆几十层才有能力，但层数越深，梯度越容易爆炸/消失、训练越不稳定。残差连接让梯度能直接回传，归一化稳定每层输出尺度，是"深得下去"的前提。<b>创新方向：</b>前置归一化（Pre-Norm）更稳、RMSNorm 更省计算。</div>
         <div class="tl">
-          <div class="card" data-group="norm" data-source="openai">
+          <div class="card" data-key="prenorm" data-group="norm" data-source="openai">
             <span class="tl-year">2019</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Pre-Norm 前置归一化</span><span class="tag">GPT-2 2019</span></div>
@@ -1461,7 +1479,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把 LayerNorm 移到残差支路之前，深层训练更稳定；几乎所有现代模型（GPT / LLaMA / Qwen / DeepSeek）沿用此布局。</div>
             <div class="card-src"><span class="fpill fp-openai">OpenAI</span></div>
           </div>
-          <div class="card" data-group="norm" data-source="other">
+          <div class="card" data-key="rmsnorm" data-group="norm" data-source="other">
             <span class="tl-year">2019</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">RMSNorm</span><span class="tag">Zhang &amp; Sennrich 2019（LLaMA / Qwen / DeepSeek 采用）</span></div>
@@ -1469,7 +1487,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>去掉均值中心化、只按均方根缩放，计算更省而训练同样稳定；LLaMA / Qwen / DeepSeek 的标配归一化。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="norm" data-source="moonshot">
+          <div class="card" data-key="attnres" data-group="norm" data-source="moonshot">
             <span class="tl-year">2026</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Attention Residuals 注意力残差</span><span class="tag">Kimi Team · Moonshot AI 2026-03（arXiv:2603.15031）</span></div>
@@ -1485,7 +1503,7 @@ window.setTab = setTab;
         <div class="pnote">Output Head · Linear + Softmax → 下一个词的概率</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>模型的隐藏状态维度与词表维度不同，输出头把隐藏状态映射到词表空间，再经 Softmax 变成"下一个词的概率分布"——每一次自回归解码都靠它出结果。<b>创新方向：</b>多 token 预测让训练信号更密、共享词表嵌入省参数。</div>
         <div class="tl">
-          <div class="card" data-group="head" data-source="other">
+          <div class="card" data-key="tied-embed" data-group="head" data-source="other">
             <span class="tl-year">2020</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">共享词表嵌入</span><span class="tag">T5 2020（ALBERT 等）</span></div>
@@ -1493,7 +1511,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>输入输出共享同一套词表嵌入并做缩放，参数量大幅下降且性能不损失。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="head" data-source="deepseek">
+          <div class="card" data-key="mtp" data-group="head" data-source="deepseek">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">多 Token 预测 MTP</span><span class="tag">DeepSeek-V3 2024 / Meta（Gloeckle et al.）2024</span></div>
@@ -1509,7 +1527,7 @@ window.setTab = setTab;
         <div class="pnote">Training &amp; Alignment · 不改变模块结构，改变"怎么训"</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>同样的架构，训练方法不同结果天差地别：预训练只让模型学会"续写"，不懂指令、不够安全。训练与对齐决定模型是否"有用、可控、会推理"，是 ChatGPT 与推理模型能力的来源。<b>创新方向：</b>从人工 RLHF 到 RLAIF、DPO，再到 GRPO 与可验证奖励驱动的推理涌现。</div>
         <div class="tl">
-          <div class="card" data-group="train" data-source="openai">
+          <div class="card" data-key="rlhf" data-group="train" data-source="openai">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">RLHF / PPO</span><span class="tag">InstructGPT · ChatGPT（OpenAI）2022</span></div>
@@ -1517,7 +1535,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>训练奖励模型给回答打分，再用 PPO 按分数更新策略，让模型对齐人类偏好；ChatGPT 由此诞生，确立"对齐"赛道。</div>
             <div class="card-src"><span class="fpill fp-openai">OpenAI</span></div>
           </div>
-          <div class="card" data-group="train" data-source="anthropic">
+          <div class="card" data-key="constitutional" data-group="train" data-source="anthropic">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Constitutional AI（RLAIF）</span><span class="tag">Anthropic · Claude 2022</span></div>
@@ -1525,7 +1543,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>用一组"宪法原则"让 AI 自我批评、自我修正并生成偏好数据，减少人工标注、可审计；把对齐规模化（Claude 的核心方法论）。</div>
             <div class="card-src"><span class="fpill fp-anthropic">Anthropic</span></div>
           </div>
-          <div class="card" data-group="train" data-source="other">
+          <div class="card" data-key="dpo" data-group="train" data-source="other">
             <span class="tl-year">2023</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">DPO 直接偏好优化</span><span class="tag">Rafailov et al. 2023</span></div>
@@ -1533,7 +1551,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>把对齐化简为分类式损失，直接基于偏好对训练，稳定、便宜、易复现，成为开源模型对齐的主流。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="train" data-source="deepseek,moonshot,qwen,google">
+          <div class="card" data-key="cot" data-group="train" data-source="deepseek,moonshot,qwen,google">
             <span class="tl-year">2024–25</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">推理模式 / 长思维链</span><span class="tag">DeepSeek-R1 / Kimi k1.5 / Qwen3 / Gemini 2.5</span></div>
@@ -1541,7 +1559,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>显式"思考 / 非思考"模式开关，思考模式下先生成长思维链（CoT）再作答，推理能力显著增强；已成为推理模型的标配能力。</div>
             <div class="card-src"><span class="fpill fp-deepseek">DeepSeek</span><span class="fpill fp-moonshot">Moonshot</span><span class="fpill fp-qwen">Alibaba Qwen</span><span class="fpill fp-google">Google</span></div>
           </div>
-          <div class="card" data-group="train" data-source="deepseek">
+          <div class="card" data-key="grpo" data-group="train" data-source="deepseek">
             <span class="tl-year">2025</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">GRPO 分组相对策略优化</span><span class="tag">DeepSeek-R1 2025</span></div>
@@ -1557,7 +1575,7 @@ window.setTab = setTab;
         <div class="pnote">Inference &amp; Long Context · 服务侧与上下文工程</div>
         <div class="pwhy"><b>为什么需要这个模块：</b>模型训完还要"跑得动、跑得快、装得下"：自回归一次一个 token 很慢，KV 缓存占显存，上下文太短装不下长文档。推理与上下文工程决定产品体验与成本。<b>创新方向：</b>KV 缓存管理（PagedAttention/Mooncake）、投机解码加速、百万级上下文。</div>
         <div class="tl">
-          <div class="card" data-group="infer" data-source="other">
+          <div class="card" data-key="speculative" data-group="infer" data-source="other">
             <span class="tl-year">2022</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">投机解码</span><span class="tag">Leviathan et al. 2022（Medusa / EAGLE 等）</span></div>
@@ -1565,7 +1583,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>小模型快速"草稿"候选 token，大模型并行验证并一次接受多个，解码速度提升 2–3 倍。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="infer" data-source="other">
+          <div class="card" data-key="pagedattn" data-group="infer" data-source="other">
             <span class="tl-year">2023</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">KV Cache + PagedAttention</span><span class="tag">vLLM 2023</span></div>
@@ -1573,7 +1591,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>按"页"管理 KV 缓存、消除显存碎片、支持高并发；成为主流推理引擎（vLLM 等）的标配。</div>
             <div class="card-src"><span class="fpill fp-other">经典论文</span></div>
           </div>
-          <div class="card" data-group="infer" data-source="moonshot">
+          <div class="card" data-key="mooncake" data-group="infer" data-source="moonshot">
             <span class="tl-year">2024</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">Mooncake 分离式推理</span><span class="tag">Moonshot · Kimi 2024</span></div>
@@ -1581,7 +1599,7 @@ window.setTab = setTab;
             <div class="what"><b>创新与优势：</b>以 K/V 缓存为中心的分离式架构：缓存复用 + 全局调度 + 预填充 / 解码分离，大幅压低 1M 级上下文的推理成本。</div>
             <div class="card-src"><span class="fpill fp-moonshot">Moonshot</span></div>
           </div>
-          <div class="card" data-group="infer" data-source="google,moonshot">
+          <div class="card" data-key="1m-ctx" data-group="infer" data-source="google,moonshot">
             <span class="tl-year">2024–25</span>
             <span class="tl-dot"></span>
             <div class="card-top"><span class="card-name">百万级上下文</span><span class="tag">Gemini 1.5（1M）/ Kimi（200K → 1M）</span></div>
