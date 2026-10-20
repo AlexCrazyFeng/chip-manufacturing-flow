@@ -13,18 +13,19 @@
   .tab{display:inline-flex;align-items:center;min-height:40px;padding:8px 18px;border:1px solid #475569;border-radius:20px;background:transparent;color:#cbd5e1;font-size:14px;cursor:pointer;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;transition:all .18s;white-space:nowrap}
   .tab:hover{border-color:#60a5fa;color:#fff}
   .tab.active{background:#2563eb;border-color:#2563eb;color:#fff;font-weight:600}
-  .clear-cache{margin-left:auto;gap:5px;padding:8px 14px;border-color:#64748b;background:rgba(51,65,85,.55);color:#cbd5e1}
+  .t-short{display:none}
+  .clear-cache{margin-left:auto;gap:5px;padding:8px 14px;border-color:#64748b;background:rgba(51,65,85,.55);color:#cbd5e1;flex:none}
   .clear-cache:hover{border-color:#ef4444;color:#fff}
   .clear-cache svg{width:14px;height:14px;flex:none;display:block}
   .cc-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.88);color:#fff;font-size:13px;padding:8px 14px;border-radius:8px;z-index:1000;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
-  @media (max-width:640px){.brand{display:none}.tab{padding:8px 10px;font-size:12px}.cc-txt{display:none}.clear-cache{padding:8px 10px}}
+  @media (max-width:640px){.brand{display:none}.t-full{display:none}.t-short{display:inline}.tab{padding:8px 10px;font-size:12px;gap:4px}.cc-txt{display:none}.clear-cache{width:44px;padding:0;justify-content:center}}
   .frame{position:fixed;top:61px;left:0;right:0;bottom:0;width:100%;height:calc(100vh - 61px);border:0;background:#fff;display:none}
   .frame.on{display:block}
 </style>
 <nav class="tabbar">
   <span class="brand">AI 前沿 · 双页图谱</span>
-  <button class="tab active" data-tab="chip" aria-label="芯片图谱">① 芯片图谱·卡脖子全流程</button>
-  <button class="tab" data-tab="tf" aria-label="Transformer创新映射">② Transformer 创新映射</button>
+  <button class="tab active" data-tab="chip" aria-label="芯片图谱·卡脖子全流程"><span class="t-full">① 芯片图谱·卡脖子全流程</span><span class="t-short">① 芯片</span></button>
+  <button class="tab" data-tab="tf" aria-label="Transformer 创新映射"><span class="t-full">② Transformer 创新映射</span><span class="t-short">② Transformer</span></button>
   <button class="tab clear-cache" id="clearCache" aria-label="清理缓存并刷新页面"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.3"/><path d="M21 3v6h-6"/></svg><span class="cc-txt">清理缓存</span></button>
   <div class="cc-toast" id="ccToast">缓存已清理，正在重新加载…</div>
 </nav>
